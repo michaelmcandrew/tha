@@ -1,0 +1,57 @@
+<?php
+
+function views_build_menu_install() {
+  drupal_install_schema('views_build_menu');
+}
+
+function views_build_menu_uninstall() {
+  drupal_uninstall_schema('views_build_menu');
+}
+
+function views_build_menu_schema() {
+  $schema['views_build_menu_item'] = array(
+    'description' => t('TODO: please describe this table!'),
+    'fields' => array(
+      'id' => array(
+        'description' => t('TODO: please describe this field!'),
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'mlid' => array(
+        'description' => t('TODO: please describe this field!'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'view' => array(
+        'description' => t('TODO: please describe this field!'),
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'unique_id' => array(
+        'description' => t('TODO: please describe this field!'),
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'depth' => array(
+        'description' => t('TODO: please describe this field!'),
+         'type' => 'text',
+         'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'mlid' => array('mlid')
+    ),
+    'indexes' => array(
+      'view' => array('view', 'unique_id'),
+    ),
+  );
+
+
+
+
+  return $schema;
+}

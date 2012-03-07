@@ -1,0 +1,8 @@
+; $Id: utils.info,v 1.4 2011/04/15 14:29:45 dries Exp $
+name = Manage Directory Information
+description = Functionality to allow Logged in Users to Manage Directory Information
+version = 3.3
+dependencies[] = civicrm
+package = CiviCRM
+core = 6.x
+php = 5.2

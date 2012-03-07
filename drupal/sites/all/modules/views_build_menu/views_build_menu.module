@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * Implementation of hook_views_api()
+ */
+function views_build_menu_views_api() {
+  return array(
+    'api' => 2,
+  );
+}
+
+/**
+ * Theme the rule set view.
+ *
+ * Instead of setting ourselves up for rendering into HTML we return an array of
+ * usefully rendered fields for the row style handler to use. You probably don't
+ * want to override this theme function ever.
+ */
+function theme_views_build_menu_row($view = NULL, $options = NULL, $row = NULL, $field_alias = NULL) {
+  // Loop through the fields for this view.
+  $fields = array(); // ensure it's at least an empty array.
+  foreach ($view->field as $id => $field) {
+    // render this even if set to exclude so it can be used elsewhere.
+    $field_output = $view->style_plugin->get_field($view->row_index, $id);
+    $empty = $field_output !== 0 && empty($field_output);
+    if (empty($field->options['exclude']) && (!$empty || empty($field->options['hide_empty']))) {
+      $object = new stdClass();
+      $object->content = $field_output;
+      $object->handler = &$view->field[$id];
+      $fields[$id] = $object;
+    }
+  }
+
+  return $fields;
+}
+
+/**
+ * Load a menu item from a given view and unique ID.
+ */
+function views_build_menu_item_load($view_and_display, $unique_id = 1, $depth_trail = array()) {
+  // The INNER join in the query should ensure that the menu item can be loaded:
+  if ($mlid = db_result(db_query("SELECT v.mlid FROM {views_build_menu_item} v INNER JOIN {menu_links} m ON v.mlid = m.mlid WHERE v.view = '%s' AND v.unique_id = '%s' AND v.depth = '%s'", $view_and_display, $unique_id, implode('.', $depth_trail)))) {
+    if ($menu_item = menu_link_load($mlid)) {
+      return $menu_item;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Load a menu item from a given view and unique ID.
+ */
+function views_build_menu_item_load_all_items($view_and_display, $depth_trail = array()) {
+  $menu_items = array();
+  $result = db_query("SELECT mlid, unique_id FROM {views_build_menu_item} WHERE view = '%s' AND depth = '%s'", $view_and_display, implode('.', $depth_trail));
+  while ($row = db_fetch_object($result)) {
+    //dsm($row);
+    if ($menu_item = menu_link_load($row->mlid)) {
+      $menu_items[$row->unique_id] = $menu_item;
+    }
+  }
+  return $menu_items;
+}
+
+
+function views_build_menu_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+    case 'menu_item_delete_form':
+      $form['#submit'][] = 'views_build_menu_menu_item_delete_form_submit';
+
+      break;
+
+  }
+}
+
+function views_build_menu_menu_item_delete_form_submit($form, &$form_state) {
+  $item = $form['#item'];
+  db_query('DELETE FROM {views_build_menu_item} WHERE mlid = %d', $item['mlid']);
+}
+
+function views_build_menu_menu_link_delete($mlid, $recursive = TRUE) {
+  $menu_item = menu_link_load($mlid);
+  if ($recursive) {
+    $result = db_query("SELECT mlid FROM {menu_links} WHERE plid = %d AND NOT(mlid = %d)", $mlid, $mlid);
+    while ($item = db_fetch_object($result)) {
+      views_build_menu_menu_link_delete($item->mlid, $recursive);
+    }
+  }
+  // Do the actual deletion:
+  menu_link_delete($menu_item['mlid']);
+  $t_args = array('%title' => $menu_item['link_title']);
+  watchdog('menu', 'Deleted menu item %title.', $t_args, WATCHDOG_NOTICE);
+  db_query('DELETE FROM {views_build_menu_item} WHERE mlid = %d', $menu_item['mlid']);
+
+}

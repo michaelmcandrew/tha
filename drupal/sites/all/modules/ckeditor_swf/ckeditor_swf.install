@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function ckeditor_swf_install() {
+  db_query("UPDATE {system} SET weight = %d WHERE name = '%s'", 1, 'ckeditor_swf');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function ckeditor_swf_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'ckeditor_swf_%%'");
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function ckeditor_swf_enable() {
+  cache_clear_all('*', 'cache_filter', TRUE);
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function ckeditor_swf_disable() {
+  cache_clear_all('*', 'cache_filter', TRUE);
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function ckeditor_swf_update_6200() {
+  db_query("UPDATE {system} SET weight = %d WHERE name = '%s'", 1, 'ckeditor_swf');
+  return array();
+}

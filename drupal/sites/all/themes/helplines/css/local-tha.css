@@ -1,0 +1,37 @@
+/* CSS Style sheet created by THA Site Admin.
+   Styles should only be used for inline styling (ie views, content)
+   not to overwrite site wide styling
+*/
+
+/* Style Admin:  P Glenday
+   Style Date:   01-JUL-2011
+   =====================================================================
+*/
+
+
+/* This is to restyle the directory layout */
+
+/* This speeds up table loading */
+.pg-table-layout {table-layout:fixed; width:700px;}
+
+/* Styles the tile */
+.pg-bold {font-weight: bold;}
+
+/* Sets widths of the three columns and aligns text and logos */
+td .pg-col1 {width: 300px; vertical-align:text-top;}
+td .pg-col2 {width: 150px; vertical-align: top;}
+td .pg-col3 {width: 250px;}
+
+/* This styles the text of the information on the helpline */
+p.pg-12px {font-size: 12px;}
+
+/* this sets the icon height */
+img .pg-logo{height: 18px;}
+
+/* required to collapse divs to hide content */
+
+div .pg-display-none
+{
+display: none;
+}
+

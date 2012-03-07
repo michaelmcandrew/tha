@@ -1,0 +1,87 @@
+# $Id: accountmenu-module.pot,v 1.4 2009/08/29 16:00:46 mattyoung Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  accountmenu.admin.inc,v 1.2 2009/06/23 19:44:34 mattyoung
+#  accountmenu.module,v 1.6 2009/08/27 01:45:20 mattyoung
+#  accountmenu.install,v 1.3 2009/07/10 00:00:10 mattyoung
+#  accountmenu.info,v 1.2 2009/07/10 00:00:10 mattyoung
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-08-29 08:57-0700\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: accountmenu.admin.inc:12
+msgid "The Account menu links are currently in \"!name\". They can be moved to be part of another menu."
+msgstr ""
+
+#: accountmenu.admin.inc:17
+msgid "Or in the \"!name\" by themselves."
+msgstr ""
+
+#: accountmenu.admin.inc:21
+msgid "Move the links to"
+msgstr ""
+
+#: accountmenu.module:22
+msgid "Provides a dynamic \"Log in|My account|Log out\" account menu"
+msgstr ""
+
+#: accountmenu.module:23
+msgid "By default, the links are under the menu \"Account menu\", they can be <a href=\"@settings\">moved</a> to be part of any menu."
+msgstr ""
+
+#: accountmenu.module:24
+msgid "The Account menu links can be <a href=\"@customize\">customized</a>, the \"My account\" link title can include the tokens <em>!name</em> or <em>!realname</em>, <em>!name</em> is replaced with the log in name and <em>!realname</em> is replaced with the real name if the <a href=\"@realname-module\">RealName module</a> is installed, if not, <em>!realname</em> is replace with the log in name."
+msgstr ""
+
+#: accountmenu.module:28
+msgid "The Account menu links are displayed with a <a href=\"@block\">block</a>."
+msgstr ""
+
+#: accountmenu.module:80
+msgid "Log in, create new account or request new password."
+msgstr ""
+
+#: accountmenu.module:96
+msgid "View user profile."
+msgstr ""
+
+#: (duplicate) accountmenu.module:61 
+msgid "Account menu has been reset, any menu customization is lost and must be <a href=\"@customize\">customized</a> again."
+msgstr ""
+
+#: (duplicate) accountmenu.module:40 accountmenu.install:11  accountmenu.info:0
+msgid "Account menu"
+msgstr ""
+
+#: accountmenu.module:41
+msgid "Configure account menu"
+msgstr ""
+
+#: accountmenu.module:0
+msgid "accountmenu"
+msgstr ""
+
+#: (duplicate) accountmenu.install:11 
+msgid "Account menu links."
+msgstr ""
+
+#: (duplicate) accountmenu.install:16 
+msgid "Account menu is installed, go to <a href=\"@help\">help</a> for instructions."
+msgstr ""
+
+#: accountmenu.info:0
+msgid "Provides dynamic Log in/My account/Log out account menu"
+msgstr ""
+

@@ -1,0 +1,28 @@
+<?php
+
+// £Id$
+
+/**
+ * @file
+ * removes the calendar link from the bottom of nodes.
+ * This is very much a patch, and will need to be switched off once the calendar
+ *  link is resolved in the calendar module.
+ * 
+ * Code courtesty of NikLP on http://drupal.org/node/462748#comment-2099292 item #7
+ */
+       
+/**
+ *
+ * @param type $links
+ * @param type $node 
+ * Implementation of hook_link_alter
+ */
+function remove_calendar_link_link_alter(&$links, $node) {
+  foreach ($links as $module => $link) {
+    if (strstr($module, 'calendar')) {
+      // remove the broken link back to the calendar - see http :// drupal.org/node/462748#comment-2099126
+      // don't know if this breaks any other calendar links?!
+      unset($links[$module]);
+    }
+  }
+}

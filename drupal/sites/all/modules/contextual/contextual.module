@@ -1,0 +1,173 @@
+<?php
+/**
+ * Implementation of hook_init().
+ */
+function contextual_init() {
+  // Don't do anything if the user has no access.
+  if (!user_access('contextual admin links')) {
+    return;
+  }
+
+  $path = drupal_get_path('module', 'contextual');
+  drupal_add_css($path .'/contextual.css');
+
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function contextual_perm() {
+  return array('contextual admin links');
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function contextual_theme($cache, $type, $theme, $path) {
+  $path = drupal_get_path('module', 'contextual');
+  $items['contextual'] = array(
+    'arguments' => array('links' => array()),
+    'template' => 'admin-links',
+    'path' => $path,
+    'file' => 'theme.inc',
+  );
+  return $items;
+}
+
+/**
+ * Retrieve the admin links for a given object.
+ */
+function contextual_get_links($type, $object) {
+  $links = array();
+    $links = module_invoke_all('admin_link', $type, $object);
+    drupal_alter('admin_link', $links, $type, $object);
+  return $links;
+}
+
+/**
+ * Implementation of hook_admin_link() on behalf of the node module.
+ */
+function node_admin_link($type, $object) {
+  $links = array();
+  if ($type == 'node') {
+    if (node_access('update', $object)) {
+      $links['node-edit'] = array(
+        'title' => t('Edit'),
+        'href' => "node/{$object->nid}/edit",
+        'attributes' => array('class' => 'icon-edit'),
+        'query' => array('destination' => $_GET['q']),
+      );
+    }
+    if (node_access('delete', $object)) {
+      $links['node-delete'] = array(
+        'title' => t('Delete'),
+        'href' => "node/{$object->nid}/delete",
+        'attributes' => array('class' => 'icon-delete'),
+        'query' => array('destination' => $_GET['q']),
+      );
+    }
+  }
+  return $links;
+}
+
+/**
+ * Implementation of hook_admin_link() on behalf of the block module.
+ */
+function block_admin_link($type, $object) {
+  $links = array();
+  if ($type == 'block') {
+    if (user_access('administer blocks')) {
+      $links['block-configure'] = array(
+        'title' => t('Configure'),
+        'href' => "admin/build/block/configure/{$object->module}/{$object->delta}",
+        'attributes' => array('class' => 'icon-configure'),
+        'query' => array('destination' => $_GET['q']),
+      );
+    }
+  }
+  return $links;
+}
+
+/**
+ * Implementation of hook_admin_link() on behalf of the views module.
+ */
+function views_admin_link($type, $object) {
+  $links = array();
+  $view_name = '';
+  if (user_access('administer views')) {
+    switch ($type) {
+      case 'block':
+        // If this is a Views block and not a special (exposed filter, etc.) block...
+        if ($object->module == 'views' && strpos($object->delta, '-') !== 0) {
+          $split = explode('-', $object->delta);
+          $view_name = array_shift($split);
+        }
+        break;
+      case 'views':
+        // Bail on block/attachment views or views using the node row plugin to prevent collisions.
+        if ($object->display_handler->get_option('row_plugin') != 'node' && !in_array(get_class($object->display_handler), array('views_plugin_display_attachment', 'views_plugin_display_block'))) {
+          $view_name = $object->name;
+        }
+        break;
+    }
+    if (!empty($view_name)) {
+      $links['views-edit'] = array(
+        'title' => t('Edit view'),
+        'href' => "admin/build/views/edit/{$view_name}",
+        'attributes' => array('class' => 'icon-edit'),
+        'query' => array('destination' => $_GET['q']),
+      );
+      if ($display_id = $object->display_handler->display->id) {
+        $links['views-edit']['fragment'] = 'views-tab-'. $display_id;
+      }
+    }
+  }
+  return $links;
+}
+
+/**
+ * Implementation of hook_theme_registry_alter().
+ */
+function contextual_theme_registry_alter(&$theme_registry) {
+  $hooks = array(
+    'page',
+    'block',
+    'views_view',
+    'node',
+  );
+  foreach ($hooks as $hook) {
+    if (empty($theme_registry[$hook]['preprocess functions']) || !in_array('contextual_preprocess_'. $hook, $theme_registry[$hook]['preprocess functions'])) {
+      $theme_registry[$hook]['preprocess functions'][] = 'contextual_preprocess_'. $hook;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_preprocess_views_view().
+ */
+function contextual_preprocess_views_view(&$vars) {
+  $contextual = theme('contextual', contextual_get_links('views', $vars['view']));
+  if ($contextual) {
+    $vars['pager'] .= $contextual;
+  }
+
+  // Disable the Views admin links stack to prevent clutter.
+  $vars['contextual'] = '';
+  $vars['contextual_raw'] = '';
+}
+
+/**
+ * Implementation of hook_preprocess_block().
+ */
+function contextual_preprocess_block(&$vars) {
+  $vars['block']->content .= theme('contextual', contextual_get_links('block', $vars['block']));
+}
+
+/**
+ * Implementation of hook_preprocess_node().
+ */
+function contextual_preprocess_node(&$vars) {
+  $vars['content'] .= theme('contextual', contextual_get_links('node', $vars['node']));
+}
+
+

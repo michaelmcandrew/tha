@@ -1,0 +1,13 @@
+
+name = "Contextual"
+description = "Contextual admin links."
+package = "Administration"
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2010-08-26
+version = "6.x-1.0-rc1"
+core = "6.x"
+project = "contextual"
+datestamp = "1282844507"
+

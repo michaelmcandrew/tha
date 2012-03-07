@@ -1,0 +1,7 @@
+; $Id
+name = Remove Calendar Link
+description = Removes calendar link from the bottom of all nodes.  Note that this is a patch until calendar link issue is fixed in calendar module.
+core = 6.x
+dependencies[] = calendar
+dependencies[] = date_api
+package = Date/Time

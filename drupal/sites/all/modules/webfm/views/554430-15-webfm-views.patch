@@ -1,0 +1,192 @@
+? views/webfm.views.inc
+Index: webfm.module
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/webfm/webfm.module,v
+retrieving revision 1.41
+diff -u -p -r1.41 webfm.module
+--- webfm.module	12 Mar 2010 03:24:56 -0000	1.41
++++ webfm.module	15 Mar 2010 00:01:10 -0000
+@@ -3024,16 +3024,13 @@ function webfm_popup() {
+ }
+ 
+ /**
+- * Views Module
++ * Implement Views Module
++ * Implement hook_views_api
+  */
+-if(module_exists('views')){
+-  require_once('./'.$modulepath.'/views/webfm_views.inc');
+-}
+-
+ function webfm_views_api() {
+   return array(
+       'api' => 2,
+-      'path' => $modulepath.'/views',
++      'path' => drupal_get_path('module', 'webfm').'/views',
+     );
+ }
+ 
+Index: views/webfm_views_handler_file_meta.inc
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/webfm/views/webfm_views_handler_file_meta.inc,v
+retrieving revision 1.1
+diff -u -p -r1.1 webfm_views_handler_file_meta.inc
+--- views/webfm_views_handler_file_meta.inc	2 Sep 2009 15:10:11 -0000	1.1
++++ views/webfm_views_handler_file_meta.inc	15 Mar 2010 00:01:10 -0000
+@@ -1,47 +1,36 @@
+ <?php
+ class webfm_views_handler_file_meta extends views_handler_field {
+-	
+-	function render($values) {
+-		
+-		//$firephp = FirePHP::getInstance(true);
+-  	//$firephp->log($values);
+-   $value = $values->{$this->field_alias};
+-		
++function render($values) {
++    $value = $values->{$this->field_alias};
+     if ($this->options['mode'] == 'link') {
+     	return l(check_plain(rawurldecode($value)), 'webfm_send/'.$values->fid);
+     } 
+     
+     return check_plain(rawurldecode($value));
+-	}
++}
+ 	
+-	function options_definitions() {
+-	   //$options = parent::option_definition();
+-
+-		$options['label'] = array('default' => $this->definition['title'], 'translatable' => TRUE);
+-		$options['mode'] = array('default' => 'link');
+-    
+-		return $options;
+-  }
++function options_definitions() {
++   $options['label'] = array('default' => $this->definition['title'], 'translatable' => TRUE);
++   $options['mode'] = array('default' => 'link');
++   
++   return $options;
++}
+ 	
+-	function options_form(&$form, &$form_state) {
+-     
+-		//parent::options_form($form, $form_state);
+-		
+-		$form['label'] = array(
++function options_form(&$form, &$form_state) {
++   $form['label'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Label'),
+        '#default_value' => isset($this->options['label']) ? $this->options['label'] : '',
+        '#description' => t('The label for this field that will be displayed to end users if the style requires it.'),
+     );
+-				
+-		$form['mode'] = array(
+-	       '#type' => 'select',
+- 	       '#title' => t('Output Mode'),
+-			   '#options' => array(
+-			      'link' => t('With links'),
+-          	'nolink' => t('Without links')
++		
++  $form['mode'] = array(
++	        '#type' => 'select',
++ 	        '#title' => t('Output Mode'),
++		'#options' => array(
++			      	'link' => t('With links'),
++          			'nolink' => t('Without links')
+ 				)   
+-     ); 
+-	}
++   ); 
++}
+ }
+-?>
+\ No newline at end of file
+Index: views/webfm_views_handler_file_name.inc
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/webfm/views/webfm_views_handler_file_name.inc,v
+retrieving revision 1.1
+diff -u -p -r1.1 webfm_views_handler_file_name.inc
+--- views/webfm_views_handler_file_name.inc	2 Sep 2009 15:10:11 -0000	1.1
++++ views/webfm_views_handler_file_name.inc	15 Mar 2010 00:01:10 -0000
+@@ -1,19 +1,15 @@
+ <?php
+ class webfm_views_handler_file_name extends views_handler_field {
+ 	
+-	function query() {
+-		$this->ensure_my_table ();
+-		// Add the field.
+-		$this->field_alias = $this->query->add_field ( $this->table_alias, 'fpath' );
+-		
+-		$this->add_additional_fields ();
+-	}
++  function query() {
++	$this->ensure_my_table ();
++	// Add the field.
++	$this->field_alias = $this->query->add_field ( $this->table_alias, 'fpath' );
+ 	
+-	function render($values) {
+-		
+-		//$firephp = FirePHP::getInstance(true);
+-  	//$firephp->log($values);
+-   
++	$this->add_additional_fields ();
++  }
++	
++  function render($values) {
+     if(variable_get('webfm_display_title', '') && $values->webfm_file_ftitle) {
+       $fname = urldecode($values->webfm_file_ftitle);
+     }
+@@ -26,36 +22,30 @@ class webfm_views_handler_file_name exte
+     } 
+     
+     return check_plain($fname);
+-	}
++  }
+ 	
+-	function options_definitions() {
+-	   //$options = parent::option_definition();
+-
+-		$options['label'] = array('default' => $this->definition['title'], 'translatable' => TRUE);
+-		$options['mode'] = array('default' => 'link');
++  function options_definitions() {
++    $options['label'] = array('default' => $this->definition['title'], 'translatable' => TRUE);
++    $options['mode'] = array('default' => 'link');
+     
+-		return $options;
++    return $options;
+   }
+ 	
+-	function options_form(&$form, &$form_state) {
+-     
+-		//parent::options_form($form, $form_state);
+-		
+-		$form['label'] = array(
++ function options_form(&$form, &$form_state) {
++   $form['label'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Label'),
+        '#default_value' => isset($this->options['label']) ? $this->options['label'] : '',
+        '#description' => t('The label for this field that will be displayed to end users if the style requires it.'),
+     );
+ 				
+-		$form['mode'] = array(
+-	       '#type' => 'select',
+- 	       '#title' => t('Output Mode'),
+-			   '#options' => array(
+-			      'link' => t('With links'),
+-          	'nolink' => t('Without links')
+-				)   
++   $form['mode'] = array(
++       '#type' => 'select',
++       '#title' => t('Output Mode'),
++       '#options' => array(
++		      'link' => t('With links'),
++	              'nolink' => t('Without links')
++		   )   
+      ); 
+-	}
++ }
+ }
+-?>
+\ No newline at end of file

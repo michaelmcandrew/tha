@@ -1,0 +1,54 @@
+// $Id: INSTALL.txt,v 1.0 2010/11/29 04:07:11 posco Exp $
+
+=================================
+CiviCRM PDF Invoice Install File  
+=================================
+
+Requirements
+-------------------------------
+
+This module requires CiviCRM 3.2.x or greater and Drupal 6.x.
+
+Installation Instructions
+-------------------------------
+
+To install the CiviCRM PDF Invoice, move the 
+`civicrm_invoice` directory to your sites' `modules/civicrm/drupal/modules/` directory.
+Then navigate to Administer > Site building > Modules and enable the CiviCRM PDF Invoice module.
+
+Refer to the Drupal documentation for further information on how to install modules.
+
+Run the civicrm_invoice.sql (found inside the civicrm_invoice modules folder) in the database which will 
+create 2 invoice related tables.
+
+How to Use
+-------------------------------
+
+After moving the module folder and running the sql file in the database , navigate to Administer > Permission 
+and assign appropriate permission for Civicrm Invoice module (access civicrm invoice)
+
+For company and bank related information which are to be displayed in the PDF invoice  
+Open civicrm_invoice.module file in any text editor and edit the company and site specific information 
+in line number starting from 13
+
+For the company logo to be displayed in the invoice
+Copy your company logo into templates/Invoice folder under the modules folder
+Filename 	    : logo.gif 					
+Suggested Dimension : 110 x 90;
+
+Once all the initial setup are done, you can see a 'View Invoice' button on Contribution View page.
+Clicking the button will generate PDF invoice for the particular contribution.
+
+Contact Information
+-------------------------------
+
+All feedback and comments of a technical nature (including support questions)
+and for all other comments you can reach me at the following e-mail address. Please
+include "CiviCRM Invoice Module" somewhere in the subject.
+
+rajesh AT millertech.co.uk
+
+License Information
+-------------------------------
+
+Copyright (C) Miller Technology 2010

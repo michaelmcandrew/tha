@@ -1,0 +1,52 @@
+<?php
+// $Id: civicrmtheme.module,v 1.1.2.2 2010/08/19 07:27:41 kurund Exp $
+
+function civicrmtheme_init() {
+  if (arg(0) == 'civicrm') {
+    // Initialize civicrm object.
+    civicrm_initialize();
+
+    // Get the menu items.
+    $args = explode('/', $_GET['q']);
+    $path = implode('/', $args);
+
+    // Get the menu for above URL.
+    $item = CRM_Core_Menu::get($path);
+
+    // Check if the page is public according to CiviCRM, otherwise use the
+    // administration theme.
+    if (isset($item['is_public']) && $item['is_public']) {
+      $theme_var = 'civicrmtheme';
+    }
+    else {
+      $theme_var = 'civicrm_admin_theme';
+    }
+
+    global $custom_theme;
+    if ($theme_var && ($custom_theme = variable_get($theme_var, '0')) != '0') {
+      $path = drupal_get_path('module', 'system');
+      drupal_add_css($path .'/admin.css', 'module');
+    }
+  }
+  return array();
+}
+
+function civicrmtheme_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == 'system_admin_theme_settings') {
+    $newform['civicrm_admin_theme'] = array(
+      '#type' => 'select',
+      '#options' => $form['admin_theme']['#options'],
+      '#title' => t('CiviCRM Administration theme'),
+      '#description' => t('Choose which theme the CiviCRM administration/backend pages should display in.'),
+      '#default_value' => variable_get('civicrm_admin_theme', ''),
+    );
+    $newform['civicrmtheme'] = array(
+      '#type' => 'select',
+      '#options' => $form['admin_theme']['#options'],
+      '#title' => t('CiviCRM User theme'),
+      '#description' => t('Choose which theme the CiviCRM frontend pages should display in.'),
+      '#default_value' => variable_get('civicrmtheme', ''),
+    );
+    $form = array_merge(array_slice($form, 0, 1), $newform, array_slice($form, 1));
+  }
+}

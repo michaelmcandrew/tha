@@ -1,0 +1,7 @@
+name = CiviCRM Membership Renewal
+description = Civicrm Membership Renewal Process
+version = 3.3
+dependencies[] = civicrm
+package = CiviCRM
+core = 6.x
+php = 5.2

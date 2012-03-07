@@ -1,0 +1,176 @@
+/* $Id: local-sample.css,v 1.1.2.1 2010/01/11 00:08:12 sociotech Exp $ */
+
+/****************************/
+/* LOCAL CSS                */
+/****************************/
+
+/* Put your custom CSS and CSS overrides in this file and  */
+/* rename it local.css.  By restricting your CSS changes   */
+/* to local.css, your changes will not be overwritten when */
+/* upgrading to a new version of this theme.  You can also */
+/* use a local-rtl.css file for the equivalent in RTL.     */
+
+/* Steps to activate local.css:                       */
+/* 1. Add your custom CSS to this file                */
+/* 2. Rename this file to local.css                   */
+/* 3. Clear cached data at admin/settings/performance */
+
+
+/*Helplines Directory Search Form Overrides*/
+/*=========================================*/
+/* $Id: local-sample.css,v 1.1.2.1 2010/01/11 00:08:12 sociotech Exp $ */
+
+/****************************/
+/* LOCAL CSS                */
+/****************************/
+
+/* Put your custom CSS and CSS overrides in this file and  */
+/* rename it local.css.  By restricting your CSS changes   */
+/* to local.css, your changes will not be overwritten when */
+/* upgrading to a new version of this theme.  You can also */
+/* use a local-rtl.css file for the equivalent in RTL.     */
+
+/* Steps to activate local.css:                       */
+/* 1. Add your custom CSS to this file                */
+/* 2. Rename this file to local.css                   */
+/* 3. Clear cached data at admin/settings/performance */
+
+
+/*Helplines Directory Search Form Overrides*/
+/*=========================================*/
+
+.header-group-inner .views-exposed-form .views-exposed-widget
+{
+  padding: 0 0 0 0; /* LTR */
+}
+
+.header-group-inner .views-exposed-form .views-exposed-widget .form-submit
+{
+    /*search button*/
+    
+  float: left;
+  margin-top: 0;
+
+}
+
+.header-group-inner .views-exposed-form .form-item,
+.header-group-inner .views-exposed-form .form-submit
+{
+  float: left;
+  margin-top: 0px;
+  margin-bottom: 0;
+ }
+
+.header-group-inner .views-exposed-form label
+{
+  font-weight: bold;
+  float: left;
+}
+
+.header-group-inner .views-exposed-widgets
+{
+    margin-bottom: 0;
+
+}
+
+/*offset position of text and search field vs button*/
+.header-group-inner .views-exposed-widget .edit-name-of-helpline-wrapper
+{
+    margin-top: 3px;
+
+}
+.header-group-inner .views-widget
+{
+    /*search text box*/
+    float: left;
+    padding-left: .5em;
+
+        
+}
+
+
+.header-group-inner .overlabel-apply
+{
+    padding-top: 1px;
+    font-size: 13px;
+}
+
+
+.header-group-inner #edit-name-of-helpline-wrapper
+{
+    padding-top: 1px;
+}
+
+.header-group-inner .views-exposed-form .form-text
+{
+    width: 120px;
+}
+
+/*clear space above primary menu*/
+#primary-menu
+{
+    padding-top: 30px;
+}
+/*
+
+
+/*search block alignment with otherblock*/
+#search-block-form .container-inline
+{
+    padding-top: 14px;
+    -padding-top: 15px;
+}
+
+
+#search-block-form .form-submit
+{
+    font-size: 0.9em;
+    margin-top: 0;
+}
+
+#search-block-form 
+{
+    font-size: 1em;
+}
+#search-block-form label
+{
+    font-size: 13px;
+}
+
+/*calendar overrides*/
+/*
+.calendar-calendar td.has-events a:link,
+.calendar-calendar td.has-events a:hover,
+.calendar-calendar td.has-events a:visitied,
+.calendar-calendar td.has-events a:active
+{
+    color: #3399cc;
+    font-weight: bold;
+    text-decoration: underline;
+}
+*/
+
+/*  Directory Search exposed view modificatoin */
+
+.views-exposed-widget label
+{
+    -padding-top: 3px;
+    font-size: 13px;
+}
+    
+
+/*fix label issues in IE8*/
+
+label .overlabel-apply
+{
+position: relative;
+}
+
+
+
+
+  
+
+      
+
+ 

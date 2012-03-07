@@ -1,0 +1,12 @@
+; $Id: civicrm_helplines_events.info,v 1.4 2007/06/08 05:50:55 dries Exp $
+name = Civicrm Helplines Events
+description = Hooks For Implementing Functionalities for Helplines Association Events.
+dependencies[] = civicrm
+package = CiviCRM
+version = VERSION
+core = 6.x
+
+; Information added by drupal.org packaging script on 2010-03-04
+version = "6.16"
+project = "drupal"
+datestamp = "1267662008"

@@ -1,0 +1,13 @@
+; $Id: civicrmtheme.info,v 1.1.2.1 2010/05/19 13:48:20 deviantintegral Exp $
+name = CiviCRM Theme
+description = define alternate themes for CiviCRM on the Drupal admin theme page
+dependencies[] = civicrm
+package = CiviCRM
+core = 6.x
+
+; Information added by drupal.org packaging script on 2010-08-19
+version = "6.x-1.4"
+core = "6.x"
+project = "civicrm_theme"
+datestamp = "1282227990"
+

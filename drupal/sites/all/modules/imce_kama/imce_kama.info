@@ -1,0 +1,11 @@
+; $Id: imce_kama.info,v 1.2 2010/06/11 12:48:34 mcrittenden Exp $
+name = "IMCE Kama"
+description = "Styles IMCE to match CKEditor's Kama theme for a unified user experience."
+core = "6.x"
+
+; Information added by drupal.org packaging script on 2010-07-09
+version = "6.x-1.0-beta4"
+core = "6.x"
+project = "imce_kama"
+datestamp = "1278683110"
+

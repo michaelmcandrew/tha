@@ -1,0 +1,92 @@
+$Id: CHANGELOG.txt,v 1.1.2.26 2009/05/22 16:17:31 michellec Exp $
+
+------------------------ D6 BRANCH ------------------------------------------------------
+
+May 22, 2009
+------------
+#445192 by Jo Wouters: Turned caching of AP block off completely.
+
+May 11, 2009
+--------------
+NOISSUE by Michelle: Syncing up to dev copy because some things are missing.
+#445192 by Jo Wouters: Fixed block caching issue.
+
+April 23, 2009
+--------------
+NOISSUE by Michelle: Made changes to content type to follow changes to CTools / Panels 3.
+
+March 31, 2009
+--------------
+NOISSUE by Michelle: Converted Panels content type to Panels 3
+
+March 31, 2009 -- 6.x-1.x
+--------------
+#390914 by alex.k: Added user relationships popup support.
+
+March 21, 2009
+--------------
+NOISSUE by Michelle: Added imagecache support to Author Pane block.
+NOISSUE by Michelle: Made author-pane-block.tpl.php template for the block version.
+#379694 by Michelle: twist3r: Double check that arg(1) is numeric.
+#402352 by Michelle: Removed logic to print user title image. Variable is still there.
+#408006 by Michelle: Changed online/offline default to be small icon plus words.
+
+March 4, 2009
+-------------
+#382082 by Michelle: Added check for existance of location_display() to avoid errors with older versions of location.
+#380942 by Kripsy: Added support for Troll module.
+#380942 by Kripsy: Don't show fasttoggle user block on own Author Pane.
+NOISSUE by Michelle: Added custom path_to_theme() function that falls back to the default theme if $theme not set.
+NOISSUE by Michelle: Trimmed down default CSS to just some basic positioning.
+NOISSUE by Michelle: Cleaned up template file.
+
+February 9, 2009
+----------------
+#362958 by Michelle: Changed userpoints integration to default to total points instead of default category.
+#363706 by Michelle: New feature: User Titles image support.
+
+January 23, 2009
+----------------
+NOISSUE by Michelle: Renamed template_file argument to template_suggestion for clarity.
+#363393 by Michelle: Fixed instructions on image directory override and made it more flexible.
+
+January 17, 2009 -- BETA 2
+----------------
+NOISSUE by Michelle: New feature: Author Pane as a block on node/user/blog pages.
+NOISSUE by Michelle: Added option to select what node types to display block on.
+NOISSUE by Michelle: Updated readme to describe new block. (missed beta 2)
+
+January 16, 2009
+----------------
+NOISSUE by Michelle: Removed caching of inc files to avoid problems when integration modules are added / removed.
+
+January 12, 2009 -- BETA 1
+----------------
+#348897 by Michelle: Fixed lack of title text on user online/offline image.
+
+January 7, 2009
+---------------
+#355737 by Michelle: Removed user stats integration as it's already in the user stats module. Reported by Jason Ruyle.
+
+January 4, 2009
+---------------
+NOISSUE by Michelle: Minor fixes to UR integration, added OG groups back to the template.
+#349194 by mr.andrey: Added location integration (untested).
+NOISSUE by Michelle: Added a README.txt.
+NOISSUE by Michelle: Updated CSS to match changes to template structure.
+
+January 3, 2009
+---------------
+NOISSUE by Michelle: Pulled author pane content type out of APK and into here.
+NOISSUE by Michelle: Added configuration to panels content type to put in image directory and template file so the APK ones could be used.
+NOISSUE by Michelle: Updated template to match the APK version except for the user name.
+
+December 27, 2008
+-----------------
+VARIOUS by Michelle: Committed integration code for og, user badges, user relationships, and user titles.
+NOISSUE by Michelle: Updated author pane template.
+
+December 21, 2008
+-----------------
+Initial dev release.
+
