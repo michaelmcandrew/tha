@@ -1,5 +1,4 @@
 <?php
-// $Id: views_perm.views.inc,v 1.1.2.1 2010/05/22 13:50:26 kratib Exp $
 
 /**
  * Implementation of hook_views_data().

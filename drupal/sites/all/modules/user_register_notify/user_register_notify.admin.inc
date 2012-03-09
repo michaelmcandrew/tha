@@ -1,13 +1,15 @@
 <?php
-// $Id: user_register_notify.admin.inc,v 1.7 2009/04/06 02:13:18 rmiddle Exp $
 
 /**
  * @file
  * Settings form.
  */
 
-define('USER_REGISTER_NOTIFY_SUBJECT', t('Account details for !user_name at !site'));
-define('USER_REGISTER_NOTIFY_BODY', t("!user_name (!user_view) has !action account.\n\nEdit user: !user_edit\n\nDelete User: !user_delete\n\n!profile"));
+if(!defined('USER_REGISTER_NOTIFY_SUBJECT'))
+  define('USER_REGISTER_NOTIFY_SUBJECT', t('Account details for !user_name at !site'));
+  
+if(!defined('USER_REGISTER_NOTIFY_BODY'))
+  define('USER_REGISTER_NOTIFY_BODY', t("!user_name (!user_view) has !action account.\n\nEdit user: !user_edit\n\nDelete User: !user_delete\n\nUser Status: !approved\n\n!profile"));
 
 /**
  * Module settings page.
@@ -60,7 +62,7 @@ function user_register_notify_settings() {
     '#default_value' => variable_get('user_register_notify_body', USER_REGISTER_NOTIFY_BODY),
     '#rows' => 10,
     '#required' => TRUE,
-    '#description' => t('Customize the body of the user registration notification email.') .' '. t('Available variables are:') .' !user_name, !user_mail, !user_view, !user_edit, !user_delete, !site, !uri, !uri_brief, !date, !action, !profile, !og.'
+    '#description' => t('Customize the body of the user registration notification email.') .' '. t('Available variables are:') .' !user_name, !user_mail, !user_view, !user_edit, !user_delete, !site, !uri, !uri_brief, !date, !action, !profile, !og, !approved, !user_uid.'
   );
   $alert_options = array(
     'create' => 'Receive Email upon user creation.',

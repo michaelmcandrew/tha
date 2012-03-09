@@ -102,7 +102,3 @@ function phptemplate_get_ie_styles() {
 
   return $iecss;
 }
-
-function phptemplate_maintenance_page($content, $messages = TRUE, $partial = FALSE) {
-  drupal_goto('http://www.helplines.org.uk/misc/siteoffline/index.html');
-}

@@ -1,6 +1,5 @@
 <?php
 
-// $Id: advf-plugins.inc,v 1.1.2.5 2009/01/27 23:31:11 michellec Exp $
 
 /**
  * @file

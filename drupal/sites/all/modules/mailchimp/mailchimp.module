@@ -55,7 +55,7 @@ function mailchimp_user($op, &$edit, &$account, $category = NULL) {
         // include interest groups
         if (isset($edit['interest_groups_' . $list->id]) && is_array($edit['interest_groups_' . $list->id])) {
           foreach($edit['interest_groups_' . $list->id] as $key => $group) {
-            $merge_vars['GROUPINGS'][] = array('id' => $key, 'groups' => is_array($group) ? implode(', ', array_filter($group)) : $group);
+            $merge_vars['GROUPINGS'][] = array('id' => $key, 'groups' => _mailchimp_implode_interest_groups($group));
           }
         }
   
@@ -68,7 +68,7 @@ function mailchimp_user($op, &$edit, &$account, $category = NULL) {
     }    
   }
 
-  if (in_array($op, array('insert', 'delete', 'after_update')) && $q = _mailchimp_get_api_object()) {
+  if (in_array($op, array('insert', 'delete', 'update', 'after_update')) && $q = _mailchimp_get_api_object()) {
     foreach ((array)_mailchimp_get_required_lists() as $list) {
       $action_taken = FALSE;
       switch ($op) {
@@ -77,6 +77,9 @@ function mailchimp_user($op, &$edit, &$account, $category = NULL) {
           db_query('DELETE FROM {mailchimp_user} WHERE uid = %d', $account->uid);
           $ret = _mailchimp_unsubscribe_user($list, $account->mail, FALSE, $q);
           $action_taken = TRUE;
+          break;
+        case 'update';
+          $_SESSION['prev_email'] = $account->mail;
           break;
         // insert or update a user to/in a MC list
         case 'insert':
@@ -96,10 +99,11 @@ function mailchimp_user($op, &$edit, &$account, $category = NULL) {
             }
 
             // they are allowed, update or subscribe
-            if($is_allowed){
+            if($is_allowed  && $account->status == 1){
               $userinfo = _mailchimp_load_user_list_mergevars($account->uid, $list->id, $q->listMergeVars($list->id));
               $userinfo['EMAIL'] = $edit['mail'];
-              $ret = _mailchimp_subscribe_user($list, $account->mail, $userinfo, FALSE, $q);
+              $ret = _mailchimp_subscribe_user($list, $_SESSION['prev_email'], $userinfo, FALSE, $q);
+              unset($_SESSION['prev_email']);
             }
             // remove from list
             else{
@@ -235,7 +239,7 @@ function mailchimp_auth_newsletter_form(&$form, $list, $account, $q) {
         '#type'           => 'checkbox',
         '#title'          => ($list->label) ? t($list->label) : t('Subscribe to the @newsletter newsletter', array('@newsletter' => $list->name)),
         '#default_value'  => $default_value,
-        '#description'    => $list->description,
+        '#description'    => t($list->description),
         '#attributes'     => array('class' => 'mailchimp-newsletter-checkbox-' . $list->id)
     );
 
@@ -296,7 +300,7 @@ function mailchimp_subscribe_auth_form_submit($form, &$form_state) {
           // include interest groups
           if (isset($form_state['values']['interest_groups_' . $list->id]) && is_array($form_state['values']['interest_groups_' . $list->id])) {
             foreach($form_state['values']['interest_groups_' . $list->id] as $key => $group) {
-              $merge_vars['GROUPINGS'][] = array('id' => $key, 'groups' => is_array($group) ? implode(', ', array_filter($group)) : $group);
+              $merge_vars['GROUPINGS'][] = array('id' => $key, 'groups' => _mailchimp_implode_interest_groups($group));
             }
           }
 
@@ -399,7 +403,7 @@ function mailchimp_menu() {
     'type' => MENU_LOCAL_TASK,
     'access callback' => 'mailchimp_user_edit_access',
     'access arguments' => array(1),
-    'tab parent' => 'user/%/edit',
+    'tab_parent' => 'user/%/edit',
     'weight' => 10,
   );
   $items['mailchimp/subscribe'] = array(
@@ -488,8 +492,8 @@ function mailchimp_subscribe_anon_form_all($form_state, $q) {
   foreach ($lists as $list) {
     $form['mailchimp_lists'][$list->id] = array(
       '#type' => 'fieldset',
-      '#title' => t('@name', array('@name' => $list->name)),
-      '#description' => t('!desc', array('!desc' => $list->description)),
+      '#title' => t($list->name),
+      '#description' => t($list->description),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
     );
@@ -520,28 +524,30 @@ function mailchimp_subscribe_anon_form_all($form_state, $q) {
  * @param <type> $q - MC API object
  */
 function mailchimp_subscribe_anon_form_submit($form, &$form_state) {
-  $lists = $form_state['values']['mailchimp_lists'];
-  foreach ($lists as $list) {
-    if (!empty($list['EMAIL'])) {
-      $success = FALSE;
+  if ($q = _mailchimp_get_api_object()) {
+    $lists = $form_state['values']['mailchimp_lists'];
+    foreach ($lists as $list) {
+      if (!empty($list['EMAIL'])) {
+        $success = FALSE;
 
-      // include interest groups
-      if (isset($list['interest_groups_' . $list['list']->id]) && is_array($list['interest_groups_' . $list['list']->id])) {
-        foreach($list['interest_groups_' . $list['list']->id] as $key => $group) {
-          $list['GROUPINGS'][] = array('id' => $key, 'groups' => is_array($group) ? implode(', ', array_filter($group)) : $group);
+        // include interest groups
+        if (isset($list['interest_groups_' . $list['list']->id]) && is_array($list['interest_groups_' . $list['list']->id])) {
+          foreach($list['interest_groups_' . $list['list']->id] as $key => $group) {
+            $list['GROUPINGS'][] = array('id' => $key, 'groups' => _mailchimp_implode_interest_groups($group));
+          }
         }
-      }
 
-      $success = _mailchimp_subscribe_user($list['list'], $list['EMAIL'], $list, TRUE);
+        $success = _mailchimp_subscribe_user($list['list'], $list['EMAIL'], $list, TRUE, $q);
 
-      if ($success) {
-        $msg = t(variable_get('mailchimp_subscription_success_message', 'Thank you, you have been successfully subscribed.'));        
-      }
-      else {
-        $msg = t(variable_get('mailchimp_subscription_failure_message', 'We were unable to subscribe you at this time. Please try again later.'));        
-      }
+        if ($success) {
+          $msg = t(variable_get('mailchimp_subscription_success_message', 'Thank you, you have been successfully subscribed.'));        
+        }
+        else {
+          $msg = t(variable_get('mailchimp_subscription_failure_message', 'We were unable to subscribe you at this time. Please try again later.'));        
+        }
 
-      drupal_set_message($msg);
+        drupal_set_message($msg);
+      }
     }
   }
 }
@@ -666,7 +672,7 @@ function _mailchimp_interest_groups_element($q, $list_id, $groupings = array(), 
         if (!empty($groupings)) {
           foreach($groupings as $grouping) {
             if ($grouping['id'] == $group['id']) {
-              $default = explode(",", str_replace(', ', ',', $grouping['groups']));
+              $default = _mailchimp_explode_interest_groups($grouping['groups']);
             }
           }
         }
@@ -859,7 +865,7 @@ function mailchimp_mailchimp_merge_values($user) {
   foreach ((array)$user as $key => $value) {
     // handle profile dates
     if (is_array($value) && isset($value['month'])) {
-      $out[$key] = implode('/', $value);
+      $out[$key] = date('Y-m-d',strtotime(implode('/', $value)));
     }
     // handle time stamps
     else if (in_array($key, array('login', 'access', 'created'))) {
@@ -1105,4 +1111,41 @@ function mailchimp_rebuild_users() {
   db_query("INSERT INTO {mailchimp_user} (uid, status) SELECT uid, '%s' FROM {users} WHERE uid > 0", MAILCHIMP_USERSTATUS_PENDING);  
   drupal_set_message('The MailChimp User\'s Table has been rebuilt with all user\'s status set to pending.', 'status');
   drupal_goto('admin/settings/mailchimp');
+}
+
+/**
+ * Escape commas in interest groups and implode if there are multiple
+ * values.
+ * 
+ * @param mixed $groups string with single group or array with groups
+ * @return string
+ */
+function _mailchimp_implode_interest_groups($groups) {
+  if (!is_array($groups)) {
+    $groups = array($groups);
+  }
+  else {
+    $groups = array_filter($groups);
+  }
+  foreach ($groups as $key => $group) {
+    $groups[$key] = str_replace(',', '\,', $group);
+  }
+  $groups = implode(',', $groups);
+  return $groups;
+}
+
+/**
+ * Parses interest groups into array and un-escapes commas in group names.
+ * 
+ * @param string $groups
+ * @return array
+ */
+function _mailchimp_explode_interest_groups($groups) {
+  // Split by comma that is not preceded by backslash and followed by
+  // zero to one space
+  $groups = preg_split('/(?<!\\\\)\,\s?/', $groups);
+  foreach ($groups as $key => $group) {
+    $groups[$key] = str_replace('\,', ',', $group);
+  }
+  return $groups;
 }

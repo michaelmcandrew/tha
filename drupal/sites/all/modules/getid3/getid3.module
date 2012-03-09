@@ -1,5 +1,4 @@
 <?php
-// $Id: getid3.module,v 1.10.2.4 2010/07/25 03:48:38 drewish Exp $
 
 define('GETID3_RECOMMEND_VERSION', '1.7.9');
 
@@ -40,7 +39,7 @@ function getid3_load($display_warning = TRUE) {
     $getid3 = new getID3;
     require_once($getid3_path .'/write.php');
 
-    return defined('GETID3_VERSION');
+    return method_exists($getid3, 'version') || defined('GETID3_VERSION');
   }
   else {
     drupal_set_message(t("The getID3() module cannot find the getID3 library used to read and write ID3 tags. The site administrator will need to verify that it is installed and then update the <a href='!admin-settings-audio-getid3'>settings</a>.", array('!admin-settings-audio-getid3' => url('admin/settings/getid3'))), 'error', FALSE);
@@ -101,5 +100,16 @@ function getid3_get_path() {
  * Returns the version number of getID3() that's installed.
  */
 function getid3_get_version() {
-  return getid3_load(FALSE) ? GETID3_VERSION : NULL;
+  if (getid3_load(FALSE)) {
+    $getid3 = new getID3;
+    // 1.9 and newer has a version method.
+    if (method_exists($getid3, 'version')) {
+      return $getid3->version();
+    }
+    // Older versions defined a constant.
+    if (defined('GETID3_VERSION')) {
+      return GETID3_VERSION;
+    }
+  }
+  return NULL;
 }

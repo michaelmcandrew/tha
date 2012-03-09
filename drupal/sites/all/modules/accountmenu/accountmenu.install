@@ -1,5 +1,4 @@
 <?php
-// $Id: accountmenu.install,v 1.4 2009/09/29 18:11:29 mattyoung Exp $
 /**
  * @file accountmenu.install
  * accountmenu module install/uninstall
@@ -49,5 +48,14 @@ function accountmenu_update_6101() {
   drupal_set_message($t('Account menu has been reset to enable new features, any customization you may have made is lost, please re-do at <a href="@url">settings</a>.',
                          array('@help' => url('admin/settings/accountmenu'),
                               )), 'status');
+  return array();
+}
+
+
+function accountmenu_update_6102() {
+  $t = get_t();
+  drupal_set_message($t('Accountmenu module: the !name and !realname tokens have been deprecated, please use @name and @realname instead.'),
+                     'warning');
+
   return array();
 }

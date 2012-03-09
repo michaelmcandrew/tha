@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function imceimage_install() {
+  drupal_load('module', 'content');
+  content_notify('install', 'imceimage');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function imceimage_uninstall() {
+  drupal_load('module', 'content');
+  content_notify('uninstall', 'imceimage');
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function imceimage_enable() {
+  drupal_load('module', 'content');
+  content_notify('enable', 'imceimage');
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function imceimage_disable() {
+  drupal_load('module', 'content');
+  content_notify('disable', 'imceimage');
+}

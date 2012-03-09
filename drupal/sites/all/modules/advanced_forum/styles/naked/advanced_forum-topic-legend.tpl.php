@@ -1,5 +1,4 @@
 <?php
-// $Id: advanced_forum-topic-legend.tpl.php,v 1.1.2.3 2009/02/04 04:59:37 michellec Exp $
 
 /**
  * @file

@@ -1,5 +1,4 @@
 <?php
-// $Id: skinr.module,v 1.13.2.17 2010/09/08 10:33:02 moonray Exp $
 
 /**
  * Implementation of hook_perm().
@@ -108,7 +107,7 @@ function skinr_form_alter(&$form, $form_state, $form_id) {
         }
         $enabled_themes++;
 
-        $preprocess_hook = $form_settings['preprocess_hook'] ? $form_settings['preprocess_hook'] : skinr_handler('preprocess_hook_callback', '', $form_settings['preprocess_hook_callback'], $form, $form_state);
+        $preprocess_hook = !empty($form_settings['preprocess_hook']) ? $form_settings['preprocess_hook'] : skinr_handler('preprocess_hook_callback', '', $form_settings['preprocess_hook_callback'], $form, $form_state);
 
         if (!$form_state['submitted']) {
           $skinr_data = skinr_handler('data_handler', 'form', $form_settings['data_handler'], $form, $form_state, $theme->name, $module, $form_settings);
@@ -171,6 +170,7 @@ function skinr_form_alter(&$form, $form_state, $form_id) {
                   '#options' => skinr_info_options_to_form_options($skin['options']),
                   '#default_value' => isset($defaults[$skin_id]) ? $defaults[$skin_id] : array(),
                   '#description' => t($skin['description']),
+                  '#weight' => isset($skin['weight']) ? $skin['weight'] : NULL,
                 );
                 break;
               case 'radios':
@@ -180,6 +180,7 @@ function skinr_form_alter(&$form, $form_state, $form_id) {
                   '#options' => array_merge(array('' => '&lt;none&gt;'), skinr_info_options_to_form_options($skin['options'])),
                   '#default_value' => isset($defaults[$skin_id]) ? $defaults[$skin_id] : '',
                   '#description' => t($skin['description']),
+                  '#weight' => isset($skin['weight']) ? $skin['weight'] : NULL,
                 );
                 break;
               case 'select':
@@ -189,6 +190,7 @@ function skinr_form_alter(&$form, $form_state, $form_id) {
                   '#options' => array_merge(array('' => '<none>'), skinr_info_options_to_form_options($skin['options'])),
                   '#default_value' => isset($defaults[$skin_id]) ? $defaults[$skin_id] : '',
                   '#description' => t($skin['description']),
+                  '#weight' => isset($skin['weight']) ? $skin['weight'] : NULL,
                 );
                 break;
             }
@@ -313,6 +315,7 @@ function skinr_preprocess(&$vars, $hook) {
     $original_hook = $theme_registry[$hook]['original hook'];
   }
 
+  $vars['skinr'] = '';
   foreach ($skinr_data as $module => $settings) {
     if (!empty($settings['preprocess'][$original_hook])) {
       $preprocess_settings = $settings['preprocess'][$original_hook];
@@ -580,6 +583,7 @@ function skinr_process_info_files() {
             'title' => isset($skin['title']) ? $skin['title'] : '',
             'type' => isset($skin['type']) ? $skin['type'] : 'checkboxes',
             'description' => isset($skin['description']) ? $skin['description'] : '',
+            'weight' => isset($skin['weight']) ? $skin['weight'] : NULL,
             'features' => isset($skin['features']) ? $skin['features'] : array('*'),
             'templates' => isset($skin['templates']) ? $skin['templates'] : array(),
             'options' => isset($skin['options']) ? $skin['options'] : array(),

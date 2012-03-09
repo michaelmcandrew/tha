@@ -1,5 +1,4 @@
 <?php
-// $Id: views_plugin_style_summary_taxonomy.inc,v 1.1.2.1 2010/05/22 13:50:26 kratib Exp $
 
 class views_plugin_style_summary_taxonomy extends views_plugin_style_summary {
   function option_definition() {

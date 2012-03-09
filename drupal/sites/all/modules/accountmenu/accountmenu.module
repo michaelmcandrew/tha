@@ -1,5 +1,4 @@
 <?php
-// $Id: accountmenu.module,v 1.14 2009/12/24 03:14:12 mattyoung Exp $
 /**
  * @file accountmenu.module
  * Provide a dynamic Log in/My account/Log out account menu
@@ -21,9 +20,9 @@ function accountmenu_help($path, $arg) {
     case 'admin/help#accountmenu':
       $output .= '<p>'. t('Provides a dynamic "Log in|My account|Log out" account menu') .'</p>';
       $output .= '<p>'. t('By default, the links are under the menu "Account menu", they can be <a href="@settings">moved</a> to be part of any menu.', array('@settings' => url('admin/settings/accountmenu'))) .'</p>';
-      $output .= '<p>'. t('The Account menu links can be <a href="@customize">customized</a>, the "My account" link title can include the tokens <em>!name</em> or <em>!realname</em>, <em>!name</em> is replaced with the log in name and <em>!realname</em> is replaced with the real name if the <a href="@realname-module">RealName module</a> is installed, if not, <em>!realname</em> is replace with the log in name.',
+      $output .= '<p>'. t('The Account menu links can be <a href="@customize">customized</a>, the "My account" link title can include the tokens <em>@name</em> or <em>@realname</em>, <em>@name</em> is replaced with the log in name and <em>@realname</em> is replaced with the real name if the <a href="@module-path">RealName module</a> is installed, if not, <em>@realname</em> is replace with the log in name.',
                            array('@customize' => url('admin/build/menu-customize/'. variable_get('accountmenu_menu_name', 'accountmenu')),
-                                '@realname-module' => url('http://drupal.org/project/realname', array('external' => TRUE)),
+                                '@module-path' => url('http://drupal.org/project/realname', array('external' => TRUE)),
                           )) .'</p>';
       $output .= '<p>'. t('The Account menu links are displayed with a <a href="@block">block</a>.',
                            array('@block' => url('admin/build/block'),
@@ -141,11 +140,11 @@ function accountmenu_translated_menu_link_alter(&$item) {
     return;
   }
   if (_accountmenu_menu_need_destination($item['link_path'])) {
-    if (function_exists('popups_add_popups')) {
-      popups_add_popups();
-    }
+//    if (function_exists('popups_add_popups')) {
+//      popups_add_popups();
+//    }
     if (_accountmenu_is_404() || arg(0) === 'user') {
-    	// on a 404 page or any 'user' paths, send user to the front
+      // on a 404 page or any 'user' paths, send user to the front
       $item['localized_options']['query'] = 'destination=<front>';
     }
     else {
@@ -155,22 +154,48 @@ function accountmenu_translated_menu_link_alter(&$item) {
     $item['title'] = t($item['link_title']);
   }
   elseif ($item['link_path'] == 'user/%') {
+    list($name, $realname) = _accountmenu_get_name_and_realname();
     // no check_plain() here because menu display will do it
-    // about the logic:
-    // $name and $realname default to the normal value of $user->name
-    // then if reaname module is enabled, $realname gets overriden
-    global $user;
-    $name = $realname = $user->name;
-    if (function_exists('realname_get_user')) {
-      $account = realname_get_user($user->uid);    // initialize realname
-      $realname = $account->name;
-    }
     $item['options']['accountmenu_link_title'] = $item['link_title'];
-    $item['title'] = t($item['link_title'], array('!name' => $user->name, '!realname' => $realname));
-    $item['link_title'] = t($item['options']['attributes']['title']);
+    // we prefer to use '@' key but retain the '!' key for backward compatibility
+    $item['title'] = $item['link_title'] = t($item['link_title'], array('@name' => $name, '@realname' => $realname));
   }
 }
 
+
+/**
+ * Substitue tokens @name and @realname with login name and realname. @realname
+ * is same as @name if realname module is not install.
+ * @param Array $vars variables array pass in fro core
+ * @return Array two element array, element 0 is name, 1 is realname
+ */
+function accountmenu_preprocess_block(&$vars) {
+  if ('accountmenu' == $vars['block']->delta) {
+    list($name, $realname) = _accountmenu_get_name_and_realname();
+    $vars['block']->subject = t($vars['block']->subject, array('@name' => $name, '@realname' => $realname));
+  }
+}
+
+
+/**
+ * Retrieve the user's name and realname
+ * @return a two-element array, first element is the user login name, the
+           second element is user's real name if the realname module is
+           installed, if not, it's the same as the first element
+ */
+function _accountmenu_get_name_and_realname() {
+  global $user;
+
+  // initialize elements [0] and [1], the second will be set to real name if the
+  // realname module is installed
+  $result[] = $result[] = $user->name;
+  if (function_exists('realname_get_user')) {
+    $account = realname_get_user($user->uid);    // initialize realname
+    $result[1] = $account->name;
+  }
+
+  return $result;
+}
 
 
 function _accountmenu_is_404() {
@@ -184,7 +209,8 @@ function _accountmenu_is_404() {
  */
 function accountmenu_form_alter(&$form, $form_state, $form_id) {
   if ($form_id == 'menu_edit_item' && $form['menu']['options']['#value']['accountmenu_link_title']) {
-    $form['menu']['description']['#default_value'] = $form['menu']['link_title']['#default_value'];
+//    $form['menu']['description']['#default_value'] = $form['menu']['link_title']['#default_value'];
     $form['menu']['link_title']['#default_value'] = $form['menu']['options']['#value']['accountmenu_link_title'];
   }
 }
+

@@ -1,5 +1,4 @@
 <?php
-// $Id: panels.skinr.inc,v 1.8.2.8 2010/09/04 05:32:51 jgirlygirl Exp $
 /**
  * @file
  * Provide skinr handling for panels.module.
@@ -69,9 +68,8 @@ function panels_skinr_form_index_handler($op, &$form, $form_state) {
       switch ($form['#parameters'][1]['type']) {
         case 'display':
           return 'display-'. $form['#parameters'][1]['display']->did;
-        case 'panel': // Deprecated in Panels 3.7
         case 'region':
-          return 'display-'. $form['#parameters'][1]['display']->did .'-panel-'. $form['#parameters'][1]['pid'];
+          return 'display-'. $form['#parameters'][1]['display']->did .'-region-'. $form['#parameters'][1]['pid'];
         case 'pane':
           return 'display-'. $form['#parameters'][1]['display']->did .'-pane-'. $form['#parameters'][1]['pid'];
       }
@@ -208,7 +206,7 @@ function panels_skinr_data_handler(&$form, $form_state, $theme, $module, $form_s
  */
 function panels_skinr_submit_handler_settings(&$form, $form_state, $module, $form_settings) {
   foreach ($form_state['values']['skinr_settings'][$module .'_group'] as $theme_name => $theme) {
-    if ((isset($theme['widgets']) && count($theme['widgets'])) || isset($theme['advanced']['_additional'])) {
+    if ((!empty($theme['widgets']) && is_array($theme['widgets'])) || isset($theme['advanced']['_additional'])) {
       $hook  = $module;
       $key   = skinr_handler('form_index_handler', 'submit', $form_settings['index_handler'], $form, $form_state);
 
@@ -216,8 +214,9 @@ function panels_skinr_submit_handler_settings(&$form, $form_state, $module, $for
       // and use that for reference on the final submit? If it works...
 
       $value = array();
+      $saved = skinr_get($theme_name, $hook , $key);
 
-      if (is_array($theme['widgets'])) {
+      if (!empty($theme['widgets']) && is_array($theme['widgets'])) {
         foreach ($theme['widgets'] as $skin_id => $skin_value) {
           $value[$skin_id] = is_array($skin_value) ? _skinr_array_strip_empty($skin_value) : $skin_value;
         }
@@ -229,11 +228,27 @@ function panels_skinr_submit_handler_settings(&$form, $form_state, $module, $for
           $value['_additional'] = $theme['advanced']['_additional'];
         }
       }
+      else {
+        if (!user_access('access skinr classes') && isset($saved['_additional'])) {
+          // The user didn't have access to change this. Ensure the existing
+          // custom classes remain by populating the element with the
+          // previously saved values.
+          $value['_additional'] = $saved['_additional'];
+        }
+      }
 
       if (isset($theme['advanced']['_template'])) {
         $theme['advanced']['_template'] = trim($theme['advanced']['_template']);
         if (!empty($theme['advanced']['_template'])) {
           $value['_template'] = $theme['advanced']['_template'];
+        }
+      }
+      else {
+        if (!user_access('access skinr classes') && isset($saved['_template'])) {
+          // The user didn't have access to change this. Ensure the existing
+          // template selection remains by populating the element with the
+          // previously saved values.
+          $value['_template'] = $saved['_template'];
         }
       }
 
@@ -333,9 +348,8 @@ function panels_skinr_preprocess_hook_callback(&$form, $form_state) {
   switch ($form['#parameters'][1]['type']) {
     case 'display':
       return 'panels_display';
-    case 'panel': // Deprecated as of Panels 3.7
     case 'region':
-      return 'panels_panel';
+      return 'panels_region';
     case 'pane':
       return 'panels_pane';
   }

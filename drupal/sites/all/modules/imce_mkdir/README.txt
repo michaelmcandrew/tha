@@ -1,4 +1,3 @@
-// $Id: README.txt,v 1.1.2.1 2010/02/01 16:54:48 ufku Exp $
 
 IMCE Mkdir
 http://drupal.org/project/imce_mkdir

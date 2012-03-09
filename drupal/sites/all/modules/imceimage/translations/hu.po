@@ -1,15 +1,15 @@
-# Hungarian translation of imceimage (6.x-1.0-beta1)
+# Hungarian translation of imceimage (6.x-1.0-beta2)
 # Copyright (c) 2009 by the Hungarian translation team
 # Generated from files:
-#  imceimage.module,v 1.1.2.2 2008/12/29 22:57:46 yangyicn
+#  imceimage.module,v 1.1.2.4 2009/03/27 17:30:14 yangyicn
 #  imceimage.info,v 1.1.2.1 2008/05/07 20:49:36 panis
 #  imceimage.js,v 1.1 2008/04/09 18:59:57 panis
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: imceimage (6.x-1.0-beta1)\n"
-"POT-Creation-Date: 2009-02-15 07:17-0600\n"
-"PO-Revision-Date: 2009-02-14 07:28-0600\n"
+"Project-Id-Version: imceimage (6.x-1.0-beta2)\n"
+"POT-Creation-Date: 2009-06-18 20:15+0200\n"
+"PO-Revision-Date: 2009-02-14 14:28+0100\n"
 "Last-Translator: Balogh Zoltán\n"
 "Language-Team: Hungarian http://forditas.mindworks.hu\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 
-#: imceimage.module:357
+#: imceimage.module:487
 msgid "Remove"
 msgstr "Eltávolítás"
 
@@ -31,15 +31,15 @@ msgstr ""
 "Az <em>IMCE</em> böngésző használható a képek tartalomhoz "
 "csatolására"
 
-#: imceimage.module:168
+#: imceimage.module:202
 msgid "Valid File Types"
 msgstr "Érvényes fájltípusok"
 
-#: imceimage.module:354
+#: imceimage.module:484
 msgid "Change Image"
 msgstr "Kép megváltoztatása"
 
-#: imceimage.module:360
+#: imceimage.module:490
 msgid "Add Image"
 msgstr "Kép hozzáadása"
 
@@ -59,11 +59,31 @@ msgstr "<em>IMCE</em> kép mező típust ad."
 msgid "Add image to @app"
 msgstr "Kép hozzáadása: @app"
 
-#: imceimage.module:399
+#: imceimage.module:528
 msgid "caption"
 msgstr "felirat"
 
-#: imceimage.module:400
+#: imceimage.module:529
 msgid "The caption text for this image."
 msgstr "A képfelirat szövege ehhez a képhez."
+
+#: imceimage.module:121
+msgid "@preset image"
+msgstr "@preset kép"
+
+#: imceimage.module:125
+msgid "@preset image linked to node"
+msgstr "@preset kép hivatkozva a tartalomra"
+
+#: imceimage.module:129
+msgid "@preset image linked to image"
+msgstr "@preset kép hivatkozva a képre"
+
+#: imceimage.module:133
+msgid "@preset file path"
+msgstr "@preset fájlútvonal"
+
+#: imceimage.module:137
+msgid "@preset URL"
+msgstr "@preset webcím"
 

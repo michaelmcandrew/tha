@@ -1,5 +1,4 @@
 <?php
-// $Id: user_register_notify.module,v 1.20 2009/07/02 03:41:42 rmiddle Exp $
 // Built for Drupal 6
 
 /**
@@ -20,18 +19,21 @@ function user_register_notify_help($path, $arg) {
   }
 }
 
-define('USER_REGISTER_NOTIFY_SUBJECT', t('Account details for !user_name at !site'));
-define('USER_REGISTER_NOTIFY_BODY', t("!user_name (!user_view) has !action account.\n\nEdit user: !user_edit\n\nDelete User: !user_delete\n\n!profile"));
+if(!defined('USER_REGISTER_NOTIFY_SUBJECT'))
+  define('USER_REGISTER_NOTIFY_SUBJECT', t('Account details for !user_name at !site'));
+  
+if(!defined('USER_REGISTER_NOTIFY_BODY'))
+  define('USER_REGISTER_NOTIFY_BODY', t("!user_name (!user_view) has !action account.\n\nEdit user: !user_edit\n\nDelete User: !user_delete\n\nUser Status: !approved\n\n!profile"));
 
 /**
  * Implementation of hook_menu().
  */
 function user_register_notify_menu() {
   $items['admin/settings/register_notify'] = array(
-    'title' => 'User Register Notify',
+    'title' => 'User registration notification',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('user_register_notify_settings'),
-    'description' => 'Configure the User Register Notify module.',
+    'description' => 'Configure the User Registration Notification module.',
     'file' => 'user_register_notify.admin.inc',
     'access arguments' => array('administer site configuration'),
   );
@@ -60,9 +62,9 @@ function user_register_notify_setup_email(&$edit, &$account, $action = 'insert')
         $emails = preg_split('/,[\w]+/', variable_get('user_register_notify_mailto', $from));
         // There is no break here for a reason.
       case 'Role':
-        $roles = implode(',', variable_get('user_register_notify_roles', array()));
+        $roles = variable_get('user_register_notify_roles', array());
         if (!empty($roles)) {
-          $result = db_query("SELECT mail FROM {users} AS u INNER JOIN {users_roles} AS r ON u.uid = r.uid WHERE r.rid IN('%s')", $roles);
+          $result = db_query("SELECT mail FROM {users} AS u INNER JOIN {users_roles} AS r ON u.uid = r.uid WHERE r.rid IN(" . db_placeholders($roles, 'int') . ") and u.status = '1'", $roles);
           while ($mail = db_fetch_object($result)) {
             $emails[] = $mail->mail;
           }
@@ -168,7 +170,9 @@ function user_register_notify_mail($key, &$message, $params) {
     $variables['!user_view'] = url('user/'. $uaccount->uid, array('absolute' => TRUE));
     $variables['!user_edit'] = url('user/'. $uaccount->uid .'/edit', array('absolute' => TRUE));
     $variables['!user_delete'] = url('user/'. $uaccount->uid .'/delete', array('absolute' => TRUE));
+    $variables['!approved'] = $uaccount->status ? 'approved': 'blocked';
     $variables['!site'] = variable_get('site_name', 'Drupal');
+    $variables['!user_uid'] = $uaccount->uid;
     $variables['!uri'] = $base_url;
     $variables['!uri_brief'] = drupal_substr($base_url, drupal_strlen('http://'));
     $variables['!date'] = format_date(time());

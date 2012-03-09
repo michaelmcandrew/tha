@@ -36,7 +36,7 @@ function menu_editor_node_creation_create_node_values($type = NULL, $mlid = NULL
     $_type = $type;
     $_mlid = $mlid;
   }
-  return isset($_type) ? array($_type, $_mlid) : array();
+  return isset($_type) ? array($_type, $_mlid) : array(NULL, NULL);
 }
 
 

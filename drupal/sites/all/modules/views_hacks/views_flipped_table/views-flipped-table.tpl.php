@@ -1,5 +1,4 @@
 <?php
-// $Id: views-flipped-table.tpl.php,v 1.1.2.1 2010/05/22 13:50:26 kratib Exp $
 /**
  * @file views-flipped-table.tpl.php
  * Template to display a view as a table with rows and columns flipped.
@@ -17,13 +16,14 @@
  */
 ?>
 <?php
+  // Flip the table.
   $row = array();
   foreach ($rows as $col){
     foreach ($col as $ltr => $value){
       $row[$ltr][] = $value;
     }
   }
-  $first = TRUE;
+  $first = isset($row['title']);
   $element = 'odd';
 ?>
 <table class="<?php print $class; ?>">
@@ -31,43 +31,45 @@
     <caption><?php print $title; ?></caption>
   <?php endif; ?>
 
-  <?php if ($first):?>
+  <?php if ($first) : ?>
   <thead>
-    <tr class="<? echo $element; ?>">
+    <tr class="<?php echo $element; ?>">
       <th>
       </th>
-      <?php foreach($row['title'] as $title): ?>
+      <?php foreach ($row['title'] as $title) : ?>
       <th>
       <?php echo $title; ?>
       </th>
       <?php endforeach; ?>
     </tr>
-</thead>
-<?php  $first = FALSE;
-        endif; //$first
-        $element = 'even';
-  if (!$first): ?>
+  </thead>
+  <?php  
+    $first = FALSE;
+    endif; //$first
+    $element = 'even';
+  ?>
   <tbody>
-    <?php foreach ($row as $cck_field => $rowname):?>
-      <?php if ($cck_field != title): ?>
+    <?php foreach ($row as $field => $rowname) : ?>
+      <?php if ($field != 'title') : ?>
       <tr class="<? echo $element; ?>">
         <th>
-          <?php echo $header[$cck_field]; ?>
+          <?php echo $header[$field]; ?>
         </th>
-    <?php foreach($rowname as $count => $item): ?>
+      <?php foreach ($rowname as $count => $item): ?>
         <td>
           <?php echo $item; ?>
         </td>
       <?php endforeach; ?>
       </tr>
       <?php
-          if ($element == 'odd'){
-      $element = 'even';
-    } else {
-      $element = 'odd';
-    }
-     endif; //cck_field != title
-  endforeach; ?>
+        if ($element == 'odd'){
+          $element = 'even';
+        } else {
+          $element = 'odd';
+        }
+      ?>
+      <?php endif; // field != title ?>
+    <?php endforeach; ?>
   </tbody>
-<?php endif; //!first ?>
 </table>
+

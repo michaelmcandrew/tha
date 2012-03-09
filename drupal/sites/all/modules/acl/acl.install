@@ -1,5 +1,4 @@
 <?php
-// $Id: acl.install,v 1.13.2.1 2010/01/25 01:41:12 salvis Exp $
 
 /**
  * @file
@@ -18,33 +17,39 @@ function acl_install() {
  */
 function acl_schema() {
   $schema['acl'] = array(
-    'description'     => t('The base Access Control Lists table.'),
+    'description'     => 'The base Access Control Lists table.',
     'fields'          => array(
       'acl_id'        => array(
-        'description' => t('Primary key: unique ACL ID.'),
+        'description' => 'Primary key: unique ACL ID.',
         'type'        => 'serial',
         'not null'    => TRUE),
       'module'        => array(
-        'description' => t('The name of the module that created this ACL entry.'),
+        'description' => 'The name of the module that created this ACL entry.',
         'type'        => 'varchar',
         'length'      => 255,
         'not null'    => TRUE),
       'name'          => array(
-        'description' => t('A name (or other identifying information) for this ACL entry, given by the module that created it.'),
+        'description' => 'A name (or other identifying information) for this ACL entry, given by the module that created it.',
         'type'        => 'varchar',
-        'length'      => 255)),
+        'length'      => 255),
+      'number'        => array(
+        'description' => "A number for this ACL entry, given by the module that created it; use either 'name' or 'number'.",
+        'type'        => 'int')),
     'primary key'     => array('acl_id'),
+    'indexes'         => array(
+      'module_name_number' => array(array('module', 64), array('name', 64), 'number'),
+      'module_number' => array(array('module', 64), 'number')),
   );
   $schema['acl_user'] = array(
-    'description'     => t('Identifies {users} to which the referenced {acl} entry applies.'),
+    'description'     => 'Identifies {users} to which the referenced {acl} entry applies.',
     'fields'          => array(
       'acl_id'        => array(
-        'description' => t('The {acl}.acl_id of the entry.'),
+        'description' => 'The {acl}.acl_id of the entry.',
         'type'        => 'int',
         'not null'    => TRUE,
         'default'     => 0),
       'uid'           => array(
-        'description' => t('The {user}.uid to which this {acl} entry applies.'),
+        'description' => 'The {user}.uid to which this {acl} entry applies.',
         'type'        => 'int',
         'not null'    => TRUE,
         'default'     => 0)),
@@ -53,41 +58,41 @@ function acl_schema() {
       'uid'           => array('uid')),
   );
   $schema['acl_node'] = array(
-    'description'     => t('Identifies {node}s to which the referenced {acl} entry applies and defines the permissions granted.'),
+    'description'     => 'Identifies {node}s to which the referenced {acl} entry applies and defines the permissions granted.',
     'fields'          => array(
       'acl_id'        => array(
-        'description' => t('The {acl}.acl_id of the entry.'),
+        'description' => 'The {acl}.acl_id of the entry.',
         'type'        => 'int',
         'not null'    => TRUE,
         'default'     => 0),
       'nid'           => array(
-        'description' => t('The {node}.nid to grant permissions for.'),
+        'description' => 'The {node}.nid to grant permissions for.',
         'type'        => 'int',
         'not null'    => TRUE,
         'default'     => 0),
       'grant_view'    => array(
-        'description' => t('Whether to grant "view" permission.'),
+        'description' => 'Whether to grant "view" permission.',
         'type'        => 'int',
         'size'        => 'tiny',
         'unsigned'    => TRUE,
         'not null'    => TRUE,
         'default'     => 0),
       'grant_update'  => array(
-        'description' => t('Whether to grant "update" permission.'),
+        'description' => 'Whether to grant "update" permission.',
         'type'        => 'int',
         'size'        => 'tiny',
         'unsigned'    => TRUE,
         'not null'    => TRUE,
         'default'     => 0),
       'grant_delete'  => array(
-        'description' => t('Whether to grant "delete" permission.'),
+        'description' => 'Whether to grant "delete" permission.',
         'type'        => 'int',
         'size'        => 'tiny',
         'unsigned'    => TRUE,
         'not null'    => TRUE,
         'default'     => 0),
       'priority'      => array(
-        'description' => t('The priority of this grant record (for hook_node_access_records()).'),
+        'description' => 'The priority of this grant record (for hook_node_access_records()).',
         'type'        => 'int',
         'size'        => 'small',
         'not null'    => TRUE,
@@ -99,6 +104,23 @@ function acl_schema() {
   return $schema;
 }
 
+/**
+ * Implementation of hook_requirements().
+ */
+function acl_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  // Check for existence of incompatible Authcache contrib module.
+  if ($phase == 'runtime' && module_exists('authcache')) {
+    $requirements['acl'] = array(
+      'title'    => $t('!ACL compatibility', array('!ACL' => '<a href="http://drupal.org/project/acl">ACL</a>')),
+      'value'    => $t('The design of !Module is incompatible, please disable it!', array('!Module' => '<a href="http://drupal.org/project/authcache">Authcache</a>')),
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+  return $requirements;
+}
 
 /*
  * Implementation of hook_uninstall().
@@ -172,5 +194,28 @@ function acl_update_6001() {
   $ret = array();
   @db_add_index($ret, 'acl_node', 'nid', array('nid'));
   return ($ret['success'] ? $ret : array());  // ignore possible error, if the index already exists
+}
+
+/**
+ * Add 'number' column, add indexes.
+ */
+function acl_update_6002() {
+  $ret = array();
+  db_add_field($ret, 'acl', 'number', array('type' => 'int', 'description' => "A number for this ACL entry, given by the module that created it; use either 'name' or 'number'."));
+  db_add_index($ret, 'acl', 'name', array('name'));
+  db_add_index($ret, 'acl', 'number', array('number'));
+  return $ret;
+}
+
+/**
+ * Install better indexes.
+ */
+function acl_update_6003() {
+  $ret = array();
+  db_drop_index($ret, 'acl', 'name');
+  db_drop_index($ret, 'acl', 'number');
+  db_add_index($ret, 'acl', 'module_name_number', array(array('module', 64), array('name', 64), 'number'));
+  db_add_index($ret, 'acl', 'module_number', array(array('module', 64), 'number'));
+  return $ret;
 }
 

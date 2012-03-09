@@ -1,5 +1,4 @@
 <?php
-// $Id: getid3.admin.inc,v 1.1.2.2 2010/07/25 03:48:38 drewish Exp $
 
 /**
  * @file

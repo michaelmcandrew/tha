@@ -1,4 +1,3 @@
-$Id: README.txt,v 1.1.2.1.2.3 2010/05/22 07:06:31 claudiucristea Exp $
 
 Views Send allow sending mass mailing using Views Bulk Operations - VBO
 (http://drupal.org/project/views_bulk_operations). The messages are queued in a

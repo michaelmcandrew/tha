@@ -69,26 +69,41 @@ function ckeditor_swf_getinfo() {
 }
 
 /**
- * Implementation of hook_form_alter().
+ * Implementation of hook_elements().
  */
-function ckeditor_swf_form_alter(&$form, &$form_state) {
-  $form['#after_build'][] = 'ckeditor_swf_process_form';
+function ckeditor_swf_elements() {
+  $type['textarea'] = array('#pre_render' => array('ckeditor_swf_textarea_pre_render'));
+  $type['form'] = array('#post_render' => array('ckeditor_swf_form_post_render'));
+  return $type;
 }
 
-function ckeditor_swf_process_form(&$form, &$form_state) {
-  static $added = FALSE;
-  if (!$added && ($js = drupal_add_js()) && isset($js['setting'])) {
+function ckeditor_swf_textarea_pre_render($element) {
+  _ckeditor_swf_has_textarea(TRUE);
+  return $element;
+}
+
+function _ckeditor_swf_has_textarea($set = FALSE) {
+  static $has = FALSE;
+  if (!$set) {
+    return $has;
+  }
+  $has = TRUE;
+}
+
+function ckeditor_swf_form_post_render($content, $element) {
+  static $added;
+  if (!isset($added) && _ckeditor_swf_has_textarea() && ($js = drupal_add_js()) && isset($js['setting'])) {
     $setting = call_user_func_array('array_merge_recursive', $js['setting']);
     if (isset($setting['ckeditor']) || isset($setting['wysiwyg']['configs']['ckeditor'])) {
+      $added = TRUE;
       drupal_add_js(array('ckeditor_swf' => array(
         'module_path' => base_path().drupal_get_path('module', 'ckeditor_swf'),
         'getinfo_path' => url('ckeditor_swf/getinfo'),
         'players' => ckeditor_swf_players(),
       )), 'setting');
-      $added = TRUE;
     }
   }
-  return $form;
+  return $content;
 }
 
 /**
@@ -408,6 +423,17 @@ function ckeditor_swf_init() {
   if (variable_get('ckeditor_swf_filter_add_swfobject', 0) && ckeditor_swf_filter_swfobject_ok()) {
     drupal_add_js(ckeditor_swf_filter_swfobject_path());
   }
+}
+
+/**
+ * Implementation of hook_ckeditor_plugin().
+ */
+function ckeditor_swf_ckeditor_plugin() {
+  return array('ckeditor_swf' => array(
+    'name' => 'swf',
+    'desc' => t('CKEditor SWF - Enhanced Flash embedding plugin'),
+    'path' => drupal_get_path('module', 'ckeditor_swf') .'/plugins/swf/',
+  ));
 }
 
 /**

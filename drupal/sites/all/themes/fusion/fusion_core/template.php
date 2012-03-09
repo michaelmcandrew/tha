@@ -75,7 +75,9 @@ function fusion_core_preprocess_page(&$vars) {
   $body_classes[] = ($grid_type == 'fluid') ? theme_get_setting('fluid_grid_width') : '';            // Fluid grid width in %
   $body_classes = array_filter($body_classes);                                                       // Remove empty elements
   $vars['body_classes'] = implode(' ', $body_classes);                                               // Create class list separated by spaces
-  $vars['body_id'] = 'pid-' . strtolower(preg_replace('/[^a-zA-Z0-9-]+/', '-', drupal_get_path_alias($_GET['q'])));            // Add a unique page id
+  
+  // Add a unique css id for the body tag by converting / or + or _ in the current page alias into a dash (-).
+  $vars['body_id'] = 'pid-' . strtolower(preg_replace('/[_+\/]/', '-', drupal_get_path_alias($_GET['q'])));
 
   // Generate links tree & add Superfish class if dropdown enabled, else make standard primary links
   $vars['primary_links_tree'] = '';
@@ -104,19 +106,20 @@ function fusion_core_preprocess_page(&$vars) {
   $grid_style = '/css/' . theme_get_setting('theme_grid');
   $themes = fusion_core_theme_paths($theme_key);
   $vars['setting_styles'] = $vars['ie6_styles'] = $vars['ie7_styles'] = $vars['ie8_styles'] = $vars['local_styles'] = '';
+  $query_string = '?'. substr(variable_get('css_js_query_string', '0'), 0, 1);
   foreach ($themes as $name => $path) {
     $link = '<link type="text/css" rel="stylesheet" media="all" href="' . base_path() . $path;
-    $vars['setting_styles'] .= (file_exists($path . $grid_style . '.css')) ? $link . $grid_style . '.css" />' . "\n" : '';
-    $vars['ie6_styles'] .= (file_exists($path . '/css/ie6-fixes.css')) ? $link . '/css/ie6-fixes.css" />' . "\n" : '';
-    $vars['ie7_styles'] .= (file_exists($path . '/css/ie7-fixes.css')) ? $link . '/css/ie7-fixes.css" />' . "\n" : '';
-    $vars['ie8_styles'] .= (file_exists($path . '/css/ie8-fixes.css')) ? $link . '/css/ie8-fixes.css" />' . "\n" : '';
-    $vars['local_styles'] .= (file_exists($path . '/css/local.css')) ? $link . '/css/local.css" />' . "\n" : '';
+    $vars['setting_styles'] .= (file_exists($path . $grid_style . '.css')) ? $link . $grid_style . '.css' . $query_string . '"/>' . "\n" : '';
+    $vars['ie6_styles'] .= (file_exists($path . '/css/ie6-fixes.css')) ? $link . '/css/ie6-fixes.css' . $query_string . '"/>' . "\n" : '';
+    $vars['ie7_styles'] .= (file_exists($path . '/css/ie7-fixes.css')) ? $link . '/css/ie7-fixes.css' . $query_string . '" />' . "\n" : '';
+    $vars['ie8_styles'] .= (file_exists($path . '/css/ie8-fixes.css')) ? $link . '/css/ie8-fixes.css' . $query_string . '" />' . "\n" : '';
+    $vars['local_styles'] .= (file_exists($path . '/css/local.css')) ? $link . '/css/local.css' . $query_string . '" />' . "\n" : '';
     if (defined('LANGUAGE_RTL') && $language->direction == LANGUAGE_RTL) {
       $vars['setting_styles'] .= (file_exists($path . $grid_style . '-rtl.css')) ? $link . $grid_style . '-rtl.css" />' . "\n" : '';
-      $vars['ie6_styles'] .= (file_exists($path . '/css/ie6-fixes-rtl.css')) ? $link . '/css/ie6-fixes-rtl.css" />' . "\n" : '';
-      $vars['ie7_styles'] .= (file_exists($path . '/css/ie7-fixes-rtl.css')) ? $link . '/css/ie7-fixes-rtl.css" />' . "\n" : '';
-      $vars['ie8_styles'] .= (file_exists($path . '/css/ie8-fixes-rtl.css')) ? $link . '/css/ie8-fixes-rtl.css" />' . "\n" : '';
-      $vars['local_styles'] .= (file_exists($path . '/css/local-rtl.css')) ? $link . '/css/local-rtl.css" />' . "\n" : '';
+      $vars['ie6_styles'] .= (file_exists($path . '/css/ie6-fixes-rtl.css')) ? $link . '/css/ie6-fixes-rtl.css' . $query_string . '" />' . "\n" : '';
+      $vars['ie7_styles'] .= (file_exists($path . '/css/ie7-fixes-rtl.css')) ? $link . '/css/ie7-fixes-rtl.css' . $query_string . '" />' . "\n" : '';
+      $vars['ie8_styles'] .= (file_exists($path . '/css/ie8-fixes-rtl.css')) ? $link . '/css/ie8-fixes-rtl.css' . $query_string . '" />' . "\n" : '';
+      $vars['local_styles'] .= (file_exists($path . '/css/local-rtl.css')) ? $link . '/css/local-rtl.css' . $query_string . '" />' . "\n" : '';
     }
   }
 
@@ -147,18 +150,22 @@ function fusion_core_preprocess_page(&$vars) {
   
   // Replace page title as Drupal core does, but strip tags from site slogan.
   // Site name and slogan do not need to be sanitized because the permission
-  // 'administer site configuration' is required to set and should be given to
+  // 'administer site configuration' is required to be set and should be given to
   // trusted users only.
-  if (drupal_get_title()) {
-    $head_title = array(strip_tags(drupal_get_title()), variable_get('site_name', 'Drupal'));
-  }
-  else {
-    $head_title = array(variable_get('site_name', 'Drupal'));
-    if (variable_get('site_slogan', '')) {
-      $head_title[] = strip_tags(variable_get('site_slogan', ''));
+  // No sanitization will be applied when using the page title module.
+  if (!module_exists('page_title')) {
+    if (drupal_get_title()) {
+      $head_title = array(strip_tags(drupal_get_title()), variable_get('site_name', 'Drupal'));
     }
-  }
-  $vars['head_title'] = implode(' | ', $head_title);  
+    else {
+      $head_title = array(variable_get('site_name', 'Drupal'));
+      if (variable_get('site_slogan', '')) {
+        $head_title[] = strip_tags(variable_get('site_slogan', ''));
+      }
+    }
+    if (is_array($head_title)) $head_title = implode(' | ', $head_title);  
+    $vars['head_title'] = $head_title;
+  } 
 }
 
 
@@ -268,7 +275,7 @@ function fusion_core_preprocess_block(&$vars) {
   }
 
   // Increment block count for current block's region, add first/last position class
-  $regions[$vars['block']->region]['count'] ++;
+  $regions[$vars['block']->region]['count']++;
   $region_count = $regions[$vars['block']->region]['count'];
   $total_blocks = $regions[$vars['block']->region]['total'];
   $vars['position'] = ($region_count == 1) ? 'first' : '';

@@ -85,6 +85,8 @@
                     <div id="content-group" class="content-group row nested <?php print $content_group_width; ?>">
                       <div id="content-group-inner" class="content-group-inner inner">
                         <?php print theme('grid_block', $breadcrumb, 'breadcrumbs'); ?>
+                      
+                      <?php print $header_center; ?>
 
                         <?php if ($content_top || $help || $messages): ?>
                         <div id="content-top" class="content-top row nested">

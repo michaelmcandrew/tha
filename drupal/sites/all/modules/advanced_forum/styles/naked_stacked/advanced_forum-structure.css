@@ -1,4 +1,3 @@
-/* $Id: advanced_forum-structure.css,v 1.1.2.20 2009/02/07 04:40:49 michellec Exp $ */
 
 /*
 This document contains structural markup such as widths, margins, padding, and 
@@ -214,41 +213,42 @@ ul.forum-links {
 }
 
 /* Author information pane */
-/* Note: more CSS in the author pane css file */
 .forum-post-panel-sub {
+  float: none; /* Reset */
   line-height: 110%;
+  width: auto; /* Reset */
 }
 
 .forum-post-panel-sub .author-pane {
+  margin: 0; /* Reset */
   padding: 10px 0 5px 10px;
 }
 
-.author-pane-top {
+.forum-post-panel-sub .author-pane-top {
   overflow: auto;
   height: 100px;
 }
 
-.forum-post-panel-sub .author-pane-picture,
-.forum-post-panel-sub .author-pane-name-status,
-.forum-post-panel-sub .author-pane-admin,
+.forum-post-panel-sub .author-pane .picture {
+  float: left;
+  display: block;
+  margin: 2px 10px 2px 2px;
+  padding-left: 0px;
+}
+
+.forum-post-panel-sub .author-pane-section-1,
+.forum-post-panel-sub .author-pane-section-2,
 .forum-post-panel-sub .author-pane-stats {
   float: left;
   display: block;
-  width: 145px;
-  margin-right: 5px;
+  margin-right: 10px;
 }
 
-.forum-post-panel-sub .author-pane-stats {
+.forum-post-panel-sub .author-pane-contact,
+.forum-post-panel-sub .author-pane-admin {
   float: right;
-}
-
-.forum-post-panel-sub .author-pane-name-groups {
-  margin: 5px;
-}
-
-.author-pane-picture .picture {
-  float: none;
-  padding-left: 0pt;
+  display: block;
+  margin-right: 5px;
 }
 
 /* Post text area */

@@ -1,5 +1,5 @@
 <?php
-// $Id: tabtamer.module,v 1.1 2009/08/15 08:32:33 coreyp1 Exp $
+// $Id: tabtamer.module,v 1.1.2.4 2011/01/05 08:50:54 coreyp1 Exp $
 
 /**
  * @file
@@ -76,15 +76,30 @@ function tabtamer_menu_alter(&$items) {
   // We will be altering the $items variable, so we create a backup in case we need
   // to see the original state of the $items array.
   _tabtamer_backup($items);
-  
+
   $tabs = variable_get('tabtamer_tab_settings', array());
   foreach ($tabs as $path => $val) {
-    $items[$val['tabtamer_original_path']]['weight'] = $val['weight'];
-    if ($val['action'] == 'hidden') {
-      $items[$val['tabtamer_original_path']]['type'] = MENU_CALLBACK;
-    }
-    elseif ($val['action'] == 'disabled') {
-      unset($items[$val['tabtamer_original_path']]);
+    // Only set the attributes if the menu router item exists.
+    if (!empty($items[$val['tabtamer_original_path']])) {
+      $items[$val['tabtamer_original_path']]['weight'] = $val['weight'];
+      if ($val['action'] == 'hidden') {
+        $items[$val['tabtamer_original_path']]['type'] = MENU_CALLBACK;
+      }
+      elseif ($val['action'] == 'disabled') {
+        unset($items[$val['tabtamer_original_path']]);
+      }
+      else {
+        if (!empty($val['tabtamer_title'])) {
+          $items[$val['tabtamer_original_path']]['title'] = $val['tabtamer_title'];
+          // we are providing a title, so remove any title callback and arguments
+          if (isset($items[$val['tabtamer_original_path']]['title callback'])) {
+            unset($items[$val['tabtamer_original_path']]['title callback']);
+          }
+          if (isset($items[$val['tabtamer_original_path']]['title arguments'])) {
+            unset($items[$val['tabtamer_original_path']]['title arguments']);
+          }
+        }
+      }
     }
   }
 }
@@ -182,7 +197,7 @@ function _tabtamer_convert_to_single_array(&$tabs, $tabs_source, $last_default_p
 
   // If there is a MENU_DEFAULT_LOCAL_TASK at this level then set $last_default_path.
   foreach ($tabs_source as $key => $val) {
-    if (is_array($val) && $val['type'] == MENU_DEFAULT_LOCAL_TASK) {
+    if (is_array($val) && ($val['type'] == MENU_DEFAULT_LOCAL_TASK || empty($val['type']))) {
       $last_default_path = $current_path;
       break;
     }
@@ -242,7 +257,7 @@ function theme_tabtamer_tabs_form($form) {
       if (is_array($val) && (!empty($val['weight']) || !empty($val['action']))) {
         unset($form[$base][$path]['#type']);
         $row = array(
-          check_plain($tabs[$base][$path]['tabtamer_title']),
+          drupal_render($form[$base][$path]['tabtamer_title']),
           check_plain($path), 
           drupal_render($form[$base][$path]['weight']), 
           drupal_render($form[$base][$path]['action']),
@@ -283,6 +298,7 @@ function tabtamer_tabs_form() {
       '#description' => '',
     );
     foreach ($paths as $path => $val) {
+      $tabtamer_title = !empty($settings[$path]['tabtamer_title']) ? $settings[$path]['tabtamer_title'] : $val['tabtamer_title'];
       $weight = isset($settings[$path]['weight']) ? $settings[$path]['weight'] : 
         (isset($tabs[$base][$path]['weight']) ? $tabs[$base][$path]['weight'] : '0');
       $action = $settings[$path]['action'] ? $settings[$path]['action'] : 'enabled';
@@ -293,6 +309,12 @@ function tabtamer_tabs_form() {
         '#collapsible' => TRUE,
         '#collapsed' => FALSE,
         '#description' => '',
+      );
+      $form[$base][$path]['tabtamer_title'] = array(
+        '#type' => 'textfield',
+        '#default_value' => $tabtamer_title,
+        '#description' => 'Original Title: ' . check_plain($val['tabtamer_title']),
+        '#size' => 30,
       );
       $form[$base][$path]['weight'] = array(
         '#type' => 'weight',
@@ -354,7 +376,7 @@ function tabtamer_tabs_form_submit($form_id, $form_values) {
           'weight' => $form_values['values'][$base][$tab]['weight'],
           'action' => $form_values['values'][$base][$tab]['action'],
           'tabtamer_original_path' => $paths[$tab]['tabtamer_original_path'],
-          'tabtamer_title' => $paths[$tab]['tabtamer_title'],
+          'tabtamer_title' => $paths[$tab]['tabtamer_title'] == $form_values['values'][$base][$tab]['tabtamer_title'] ? '' : $form_values['values'][$base][$tab]['tabtamer_title'],
         );
       }
     }

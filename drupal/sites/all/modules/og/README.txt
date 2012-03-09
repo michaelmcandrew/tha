@@ -1,4 +1,3 @@
-$Id: README.txt,v 1.60.4.6 2009/09/22 03:04:30 weitzman Exp $
 
 DESCRIPTION
 --------------------------

@@ -1,5 +1,4 @@
 <?php
-// $Id: forum_access.admin.inc,v 1.43 2010/07/28 22:58:12 salvis Exp $
 
 /**
  * @file forum_access.admin.inc
@@ -121,7 +120,7 @@ function _forum_access_forum_form(&$form, &$form_state, $is_container) {
   $forum_vocabulary = taxonomy_vocabulary_load(_forum_access_get_vid());
   $form['forum_access']['headers']['create'] = array(
     '#type' => 'item',
-    '#prefix' => '<div class="forum-access-div" id="container">',
+    '#prefix' => '<div class="forum-access-div" id="forum-access-div-container">',
     '#title' => t('See this container in the %Forums selection list', array('%Forums' => $forum_vocabulary->name)),
     '#suffix' => '</div>',
   );
@@ -201,9 +200,9 @@ function _forum_access_forum_form(&$form, &$form_state, $is_container) {
 
   // Find our moderator ACL:
   if (isset($tid)) {  // edit, not new
-    $acl_id = db_result(db_query("SELECT acl_id from {acl} WHERE module = 'forum_access' AND name = '%d'", $tid));
+    $acl_id = acl_get_id_by_number('forum_access', $tid);
     if (!$acl_id) { // create one
-      $acl_id = acl_create_new_acl('forum_access', $tid);
+      $acl_id = acl_create_new_acl('forum_access', NULL, $tid);
       // update every existing node in this forum to use this acl.
       $result = db_query("SELECT nid FROM {term_node} WHERE tid = %d", $tid);
       while ($node = db_fetch_object($result)) {
@@ -391,6 +390,8 @@ function _forum_access_forum_form(&$form, &$form_state, $is_container) {
       ),
       '#attributes' => array('class' => 'forum-access-flowed'),
     );
+  }
+  if (isset($tid)) {
     $form['forum_access']['force_update'] = array(
       '#type' => 'checkbox',
       '#title' => t('Update even if unchanged'),
@@ -463,7 +464,7 @@ function _forum_access_forum_form_after_build_acl0($form, $form_state) {
   if (isset($form['#post']['forum_access']['template']['taxonomy'])) {
     // Get ACL's user_list for the template and replace it before ACL's after_build function gets its shot at it.
     $template_tid = reset(array_values($form['#post']['forum_access']['template']['taxonomy']));
-    if ($acl_id = db_result(db_query("SELECT acl_id from {acl} WHERE module = 'forum_access' AND name = '%d'", $template_tid))) {
+    if ($acl_id = acl_get_id_by_number('forum_access', $template_tid)) {
       $f = acl_edit_form($acl_id, 'DUMMY');
       $form['user_list']['#value'] = $f['user_list']['#default_value'];
     }
@@ -581,8 +582,18 @@ function _forum_access_form_submit($form, &$form_state) {
       continue;
     }
     if (isset($permissions[$rid]['administer nodes'])) {
-      db_query("INSERT INTO {forum_access} (tid, rid, grant_view, grant_update, grant_delete, grant_create, priority) VALUES (%d, %d, %d, %d, %d, %d, %d)",
-        $tid, $rid, 0, 0, 0, !empty($access['create'][$rid]), $fa_priority);
+      // We prefer not to save records for node administrators, because these have access anyway.
+      if (isset($permissions[$rid]['administer forums']) && $access['view'][$rid]) {
+        // For forum administrators, View needs to be saved, ...
+      }
+      else {
+        // ... otherwise forget View.
+        $access['view'][$rid] = FALSE;
+      }
+      if ($access['view'][$rid] || $access['create'][$rid]) {
+        db_query("INSERT INTO {forum_access} (tid, rid, grant_view, grant_update, grant_delete, grant_create, priority) VALUES (%d, %d, %d, %d, %d, %d, %d)",
+          $tid, $rid, !empty($access['view'][$rid]), 0, 0, !empty($access['create'][$rid]), $fa_priority);
+      }
     }
     else {
       db_query("INSERT INTO {forum_access} (tid, rid, grant_view, grant_update, grant_delete, grant_create, priority) VALUES (%d, %d, %d, %d, %d, %d, %d)",
@@ -721,9 +732,8 @@ function _forum_access_get_settings($tid = NULL) {
     $return['create'] = array(DRUPAL_AUTHENTICATED_RID);
   }
   else {
-    $result = db_query("SELECT * FROM {forum_access} where tid=%d", $tid);
+    $result = db_query("SELECT * FROM {forum_access} where tid = %d", $tid);
     while ($access = db_fetch_object($result)) {
-      $row_received = TRUE;
       if ($access->grant_view) {
         $return['view'][] = $access->rid;
       }
@@ -739,10 +749,6 @@ function _forum_access_get_settings($tid = NULL) {
       if ($access->rid == DRUPAL_AUTHENTICATED_RID) {  // this is our reference
         $return['priority'] = $access->priority;
       }
-    }
-    if (empty($row_received)) {
-      // Return default settings if no records found in database.
-      $return = _forum_access_get_settings();
     }
   }
   return $return;
@@ -895,7 +901,7 @@ function _forum_access_create_moderator_rid($verbose = FALSE) {
       variable_set('forum_access_moderator_rid', $rid);
       $permission = new stdClass();
       $permission->rid = $rid;
-      $permission->perm = 'administer comments, administer nodes';
+      $permission->perm = 'administer comments, administer nodes, post comments, post comments without approval';
       drupal_write_record('permission', $permission);
       $msg = t('!Forum_Access has created a new role named %role and given it the %administer_nodes and %administer_comments permissions. This role is used internally by !Forum_Access. You can change the name of the role as you like, but you must keep it unmodified otherwise.', $variables);
       if ($verbose) {

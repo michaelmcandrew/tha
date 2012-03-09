@@ -1,5 +1,4 @@
 <?php
-// $Id: imce_mkdir.install,v 1.1.2.1 2009/02/10 15:56:24 ufku Exp $
 
 /**
  * Implementation of hook_install()

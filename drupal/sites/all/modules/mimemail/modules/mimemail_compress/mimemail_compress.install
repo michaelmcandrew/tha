@@ -1,8 +1,12 @@
 <?php
 
+/**
+ * @file
+ * Install, update and uninstall functions for the Mime Mail Compress module.
+ */
 
 /**
- * Implementation of hook_requirements().
+ * Implements hook_requirements().
  */
 function mimemail_compress_requirements($phase) {
   $requirements = array();

@@ -1,10 +1,38 @@
-$Id: CHANGELOG.txt,v 1.95 2010/08/15 14:31:53 salvis Exp $
 
 CHANGELOG for Forum Access for Drupal 6
 
 
 forum_access 6.x-1.x-dev:
 
+
+forum_access 6.x-1.7 (2011-11-08):
+  Enhancements:
+    - #762270 by daffie, salvis: Add extensive Simpletests.
+  Bugs fixed:
+    - #762270 by salvis: Fix a number of minor bugs (edge cases) uncovered by the tests.
+
+
+forum_access 6.x-1.6 (2011-11-08):
+  Bugs fixed:
+    - #762270: Fix a notice on the forums page.
+    - Fix minor coding style issues (no functional changes).
+    - #1001968: Don't assume that there is a role with the 'administer nodes' permission.
+    - #978572: Remove moderator role on uninstall.
+    - #980894: Fix a notice.
+  Enhancements:
+    - #1022652: Guard against people trying to run updates in disabled state.
+    - #936682, #968382: Move the TID into the {acl.number} column to speed up hook_db_rewrite_sql() joins.
+    - Implement the D6.17 hook_link_alter() for comments.
+    - Update the link in forum_access_update_6105() to point directly to the release notes.
+
+forum_access 6.x-1.5 (2010-10-09):
+  Bugs fixed:
+    - #745002: Fix missing 'delete comment' link for users with the 'administer comments' permission.
+    - #906430: Add a missing preg_match() call.
+    - #904206: Fix misplaced labels on the container form under the Garland theme.
+    - #810422: Fix public forums not being visible to Anonymous on the overview page, due to missing default records in the {node_access} table.
+    - Always display the 'Update even if unchanged' checkbox, except for new forums/containers.
+    - Fix inability to save Create and View access for roles with the 'administer nodes' permission.
 
 forum_access 6.x-1.4 (2010-08-15):
   Enhancements:
@@ -21,7 +49,6 @@ forum_access 6.x-1.4 (2010-08-15):
     - #723398: Avoid removing legitimate links from comments.
     - #692106: Fix moderator cannot edit comments again.
     - #692106: Fix moderator cannot edit comments.
-
 
 forum_access 6.x-1.3 (2010-02-17):
   Bugs fixed:

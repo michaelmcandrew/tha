@@ -1,4 +1,3 @@
-/* $Id: advanced_forum.css,v 1.1.2.3 2009/03/05 04:47:02 michellec Exp $ */
 
 /*
 This file contains colors, graphics, and text effects. For structural markup,
@@ -91,18 +90,17 @@ Colors used:
 }
 
 /* Author information pane */
-/* Note: more CSS in the author pane css file */
-.author-pane .author-name {
+.forum-post-panel-sub  .author-pane .author-name {
   font-size: 120%;
   font-weight: bold;
 }
 
-.author-pane .picture img {
+.forum-post-panel-sub .picture img {
   border: 1px solid #CCCCCC;
 	background: #ffffff;
 }
 
-.author-pane .author-pane-label {
+.forum-post-panel-sub .author-pane .author-pane-label {
   font-weight: bold;
 }
 
@@ -124,3 +122,54 @@ Colors used:
 .forum-jump-links {
   border-right: 1px solid #CCCCCC;
 }
+
+/* AUTHOR PANE 2.x IMAGES ****************************************************/
+.forum-post-panel-sub .author-online {
+  background: transparent url(images/user-online.png) no-repeat;
+  padding-left: 20px;
+  height: 20px;
+  width: 100px;
+  display: block;
+}
+
+.forum-post-panel-sub .author-offline {
+  background: transparent url(images/user-offline.png) no-repeat;
+  padding-left: 20px;
+  height: 20px;
+  width: 100px;
+  display: block;
+}
+
+.forum-post-panel-sub .author-contact .author-pane-link span {
+  background: transparent url(images/contact.png) no-repeat;
+  padding-left: 26px;
+  height: 20px;
+  width: 100px;
+  display: block;
+}
+
+.forum-post-panel-sub .author-privatemsg .author-pane-link span {
+  background: transparent url(images/private-message.png) no-repeat;
+  padding-left: 26px;
+  height: 20px;
+  width: 100px;
+  display: block;
+}
+
+.forum-post-panel-sub .author-relationship-add-icon.author-pane-link span {
+  background: transparent url(images/buddy-add.png) no-repeat;
+  padding-left: 26px;
+  height: 20px;
+  width: 100px;
+  display: block;
+}
+
+.forum-post-panel-sub .author-relationship-remove-icon.author-pane-link {
+  background: transparent url(images/buddy-remove.png) no-repeat;
+  padding-left: 26px;
+  height: 20px;
+  width: 100px;
+  display: block;
+}
+
+

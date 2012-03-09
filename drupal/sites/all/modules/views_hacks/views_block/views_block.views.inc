@@ -1,5 +1,4 @@
 <?php
-// $Id: views_block.views.inc,v 1.1.2.1 2010/05/22 13:50:26 kratib Exp $
 /**
  * @file
  * Provide views data and handlers for blocks.

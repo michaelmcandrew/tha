@@ -1,5 +1,4 @@
 <?php
-// $Id: forum_access.node.inc,v 1.16 2010/07/14 11:41:34 salvis Exp $
 
 /**
  * @file forum_access.node.inc
@@ -33,7 +32,7 @@ function _forum_access_node_form(&$form, &$form_state) {
   }
 
   // Also get all forums they happen to be able to moderate.
-  $result = db_query("SELECT a.name AS tid FROM {acl} a INNER JOIN {acl_user} u ON a.acl_id = u.acl_id WHERE a.module = 'forum_access' AND u.uid = %d", $user->uid);
+  $result = db_query("SELECT a.number AS tid FROM {acl} a INNER JOIN {acl_user} u ON a.acl_id = u.acl_id WHERE a.module = 'forum_access' AND u.uid = %d", $user->uid);
   while ($obj = db_fetch_object($result)) {
     $tids[$obj->tid] = $obj->tid;
   }
@@ -192,7 +191,7 @@ function _forum_access_get_all_roles() {
 
 /**
  * Recreate comment links (they've already been themed), and
- * remove those that aren't accessible to the user.
+ * remove those that aren't accessible to the user (pre-D6.17).
  */
 function _forum_access_preprocess_comment(&$variables) {
   global $user;
@@ -207,20 +206,26 @@ function _forum_access_preprocess_comment(&$variables) {
     _forum_access_disable_moderator();
   }
 
-  if (isset($links['comment_reply']) && (!preg_match('#<li class="[^"]*comment_reply[^"]*".*</li>#U', $variables['links']) || !forum_access_access($tid, 'create', NULL, FALSE))) {
+  if (isset($links['comment_reply']) && (!preg_match('#<li class="[^"]*comment_reply[^"]*".*</li>#U', $variables['links']) || !user_access('post comments') || !forum_access_access($tid, 'create', NULL, FALSE))) {
     unset($links['comment_reply']);
   }
   if (isset($links['comment_edit']) && !forum_access_access($tid, 'update', NULL, FALSE) && !comment_access('edit', $variables['comment'])) {
     unset($links['comment_edit']);
   }
-  if (isset($links['comment_delete']) && !forum_access_access($tid, 'delete', NULL, FALSE)) {
+  if (isset($links['comment_delete']) && !forum_access_access($tid, 'delete', NULL, FALSE) && !user_access('administer comments')) {
     unset($links['comment_delete']);
   }
   foreach (array_keys($links) as $link) {
-    if (!in_array($link, array('comment_reply', 'comment_edit', 'comment_delete')) && !preg_match('#<li class="[^"]*'. $link .'[^"]*"(.|\n)*</li>#U', $variables['links'])) {
-      unset($links[$link]); // eliminate possible additional unknown links that came in for 'administer_comments'
+    if (!in_array($link, array('comment_reply', 'comment_edit', 'comment_delete'))) {
+      $link_preg_quote = preg_quote($link, '#');
+      if (!preg_match('#<li class="[^"]*'. $link_preg_quote .'[^"]*"(.|\n)*</li>#U', $variables['links'])) {
+        unset($links[$link]); // eliminate possible additional unknown links that came in for 'administer_comments'
+      }
     }
   }
+
+  drupal_alter('link', $links, $variables['node'], $variables['comment']);
+
   if (empty($links)) {
     $links['comment_forbidden'] = array(
       'title' => theme('comment_post_forbidden', $variables['node']),

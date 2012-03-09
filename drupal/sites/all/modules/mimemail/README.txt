@@ -25,18 +25,21 @@ USAGE
   $text        - plaintext portion of a multipart e-mail (optional)
   $attachments - array of arrays with the file's path, MIME type (optional)
   $mailkey     - message identifier
+  $send        - boolean, whether to send or only prepare the message (default TRUE)
 
-  return       - an array containing the MIME encoded message
+  return       - an array containing the MIME-encoded message, including headers and body
 
   This module creates a user preference for receiving plaintext-only messages.
   This preference will be honored by all calls to mimemail() if the format is not
-  explicitly set.
+  explicitly set and the user has access to edit this preference (allowed by default).
 
   E-mail messages are formatted using the mimemail-message.tpl.php template.
   This includes a CSS style sheet and uses an HTML version of the text.
   The included CSS is either:
     the mail.css file found in your default theme or
-    the combined CSS style sheets of your default theme.
+    the combined CSS style sheets of your default theme and
+
+  CSS style sheets with "email" media are always included.
 
   To create a custom mail template copy the mimemail-message.tpl.php file from
   the mimemail/theme directory into your default theme's folder. Both general and

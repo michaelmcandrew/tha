@@ -1,5 +1,4 @@
 <?php
-// $Id: acl.admin.inc,v 1.3 2009/10/18 23:37:41 salvis Exp $
 
 /**
  * @file
@@ -13,7 +12,7 @@ function _acl_edit_form($acl_id, $label = NULL, $new_acl = FALSE) {
   $users = array();
   if (!$new_acl) {
     // Ensure the ACL in question even exists.
-    if (!$acl_name = db_result(db_query("SELECT name FROM {acl} WHERE acl_id = %d", $acl_id))) {
+    if (!$record = db_fetch_array(db_query("SELECT name, number FROM {acl} WHERE acl_id = %d", $acl_id))) {
       return array();
     }
     $result = db_query("SELECT u.uid, u.name FROM {users} u LEFT JOIN {acl_user} aclu ON aclu.uid = u.uid WHERE acl_id = %d", $acl_id);
@@ -22,7 +21,7 @@ function _acl_edit_form($acl_id, $label = NULL, $new_acl = FALSE) {
     }
   }
   if (!isset($label)) {
-    $label = (empty($acl_name) ? $acl_id : $acl_name);
+    $label = (isset($record['name']) ? $record['name'] : (isset($record['number']) ? $record['number'] : $acl_id));
   }
 
   $form = array(

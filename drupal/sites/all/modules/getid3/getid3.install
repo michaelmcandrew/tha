@@ -1,5 +1,4 @@
 <?php
-// $Id: getid3.install,v 1.6.2.1 2009/11/26 01:21:39 drewish Exp $
 
 /**
  * Implementation of hook_requirements()

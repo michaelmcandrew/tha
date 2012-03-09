@@ -1,3 +1,4 @@
+
 This modules provides a menu with links for [Log in][My account][Log out].
 
 These links are dynamic, only [Log in] is displayed if the user has not
@@ -20,6 +21,9 @@ However, remember that if you subsequently move the links to another menu,
 the configuration changes are lost. So it's best to first move the links
 first, then set configuration.
 
-The "My account" link title can include tokens !name or !realname. !name is replaced
-with the log in name, !realname is replace with the real name if the RealName module
+The "My account" link title can include tokens @name or @realname. @name is replaced
+with the log in name, @realname is replace with the real name if the RealName module
 is installed, if not, it's replaced with the log in name.
+
+The accountmenu block title can have token @name and @realname and these works
+the same as the "My account" link title

@@ -1,5 +1,4 @@
 <?php
-// $Id
 
 /**
  * @file
@@ -67,6 +66,10 @@ function views_send_action_info() {
 function views_send_mail_action_form($context) {
   $display = $context['view']->name .':'. $context['view']->current_display;
   $form = array();
+  $form['display'] = array(
+    '#type' => 'value',
+    '#value' => $display,
+  );
   $form['from'] = array(
     '#type' => 'fieldset',
     '#title' => t('Sender'),
@@ -76,14 +79,14 @@ function views_send_mail_action_form($context) {
   $form['from']['views_send_from_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Sender\'s name'),
-    '#description' => t('Enter the sendes\' human readable name.'),
+    '#description' => t("Enter the sender's human readable name."),
     '#default_value' => variable_get('views_send_from_name_'. $display, variable_get('site_name', '')),
     '#maxlen' => 255,
   );
   $form['from']['views_send_from_mail'] = array(
     '#type' => 'textfield',
     '#title' => t('Sender\'s e-mail'),
-    '#description' => t('Enter the sendes\' E-mail address.'),
+    '#description' => t("Enter the sender's E-mail address."),
     '#required' => TRUE,
     '#default_value' => variable_get('views_send_from_mail_'. $display, variable_get('site_mail', ini_get('sendmail_from'))),
     '#maxlen' => 255,
@@ -239,7 +242,7 @@ function views_send_mail_action_validate($form, $form_state) {
      */
     if ($values['step'] == VIEWS_BULK_OPS_STEP_SINGLE) {
       // Normalize selection.
-      _views_bulk_operations_adjust_selection($values['objects']['selection'], $values['objects']['select_all'], $values['exposed_input'], $values['arguments'], $values['plugin']);
+      _views_bulk_operations_adjust_selection($values['objects']['selection'], $values['objects']['select_all'], $values['exposed_input'], $values['arguments'], $form['#plugin']);
       $records =& $values['objects']['selection'];
     }
     /**
@@ -270,7 +273,7 @@ function views_send_mail_action_validate($form, $form_state) {
  * @see http://drupal.org/node/172152
  */
 function views_send_mail_action_submit($form, &$form_state) {
-  $display = $form_state['storage'][1]['plugin']->view->name .':'. $form_state['storage'][1]['plugin']->view->current_display;
+  $display = $form['display']['#value'];
   $values =& $form_state['values'];
   $return = array(
     // TODO: Do we need this?
@@ -364,6 +367,7 @@ function views_send_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('views_send_settings'),
     'access arguments' => array('administer views_send'),
+    'file' => 'views_send.admin.inc',
   );
   return $items;
 }
@@ -395,7 +399,7 @@ function views_send_theme($existing, $type, $theme, $path) {
 
 /**
  * Implementation of hook_form_alter()
- * We wand to alter the confirmation form, just before processing the action, so the the user can preview the whole message berore sending it.
+ * We want to alter the confirmation form, just before processing the action, so the the user can preview the whole message berore sending it.
  *
  * @see http://api.drupal.org/api/function/hook_form_alter/6
  */
@@ -404,7 +408,7 @@ function views_send_form_alter($form, $form_state, $form_id) {
   // TODO: Is there a better way to pickup the right form?
   if ($form_id == 'views_bulk_operations_form__1' && isset($form_state['storage']['operation_arguments']['views_send'])) {
 
-    drupal_set_title(t('Review and confirm the message that is about to be send'));
+    drupal_set_title(t('Review and confirm the message that is about to be sent'));
     drupal_add_css(drupal_get_path('module', 'views_send') .'/views_send.css');
 
     $args =& $form_state['storage']['operation_arguments'];
@@ -464,6 +468,9 @@ function views_send_form_alter($form, $form_state, $form_id) {
  * @see http://api.drupal.org/api/function/hook_cron/6
  */
 function views_send_cron() {
+  // Load cron functions.
+  module_load_include('cron.inc', 'views_send');
+
   // Send pending messages from spool.
   views_send_send_from_spool();
 
@@ -495,153 +502,6 @@ function views_send_mail($key, &$message, $params) {
   elseif ($key == 'node') {
     // Translations, theming, etc...
   }
-}
-
-// === Callbacks ===============================================================
-
-/**
- * Callback for admin/settings/views_send menu item.
- */
-function views_send_settings() {
-  $form = array();
-
-  $throttle = drupal_map_assoc(array(1, 10, 20, 30, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000));
-  $throttle[0] = t('Unlimited');
-
-  $form['views_send_throttle'] = array(
-    '#type' => 'select',
-    '#title' => t('Cron throttle'),
-    '#options' => $throttle,
-    '#default_value' => variable_get('views_send_throttle', 20),
-    '#description' => t('Sets the numbers of messages sent per cron run. Failure to send will also be counted. Cron execution must not exceed the PHP maximum execution time of %max seconds. You find the time spend to send emails in the !recent_logs.', array('%max' => ini_get('max_execution_time'), '!recent_logs' => l(t('Recent log entries'), 'admin/reports/dblog'))),
-  );
-  $form['views_send_spool_expire'] = array(
-    '#type' => 'select',
-    '#title' => t('Mail spool expiration'),
-    '#options' => array(0 => t('Immediate'), 1 => t('1 day'), 7 => t('1 week'), 14 => t('2 weeks')),
-    '#default_value' => variable_get('views_send_spool_expire', 0),
-    '#description' => t('E-mails are spooled. How long must messages be retained in the spool after successfull sending.'),
-  );
-  $form['views_send_debug'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Log emails'),
-    '#default_value' => variable_get('views_send_debug', FALSE),
-    '#description' => t('When checked all outgoing mesages are logged in the system log. A logged E-mail does not guarantee that it is send or will be delivered. It only indicates that a message is send to the PHP mail() function. No status information is available of delivery by the PHP mail() function.'),
-  );
-
-  return system_settings_form($form);
-}
-
-// === API functions ===========================================================
-
-/**
- * Process the spool queue at cron run.
- */
-function views_send_send_from_spool() {
-  $limit = variable_get('views_send_throttle', 20);
-  $ok = $fail = $check = 0;
-
-  // Get PHP maximum execution time. 30 seconds default.
-  $max_execution_time = ini_get('max_execution_time') ? ini_get('max_execution_time') : VIEWS_SEND_MAX_EXECUTION_TIME;
-
-  // Reset a Drupal timer.
-  timer_start('views_send');
-
-  // Retrieve messages to be send.
-  $query = "SELECT * FROM {views_send_spool} WHERE status = %d ORDER BY tentatives ASC, timestamp ASC";
-  $result = $limit ? db_query_range($query, 0, 0, $limit) : db_query($query, 0);
-  while ($message = db_fetch_object($result)) {
-
-    // Send the message.
-    $status = views_send_deliver($message);
-
-    if ($status) {
-      // Update the spool status.
-      db_query("UPDATE {views_send_spool} SET status = %d WHERE eid = %d", 1, $message->eid);
-      $ok++;
-    }
-    else {
-      // Increment tentatives so that next time this message
-      // will be scheduled with low priority.
-      db_query("UPDATE {views_send_spool} SET tentatives = tentatives + 1 WHERE eid = %d", $message->eid);
-      $fail++;
-    }
-
-    // Check the elapsed time and break if we've spent more than 80%.
-    // We check every 50 messages.
-    if (++$check >= 50) {
-      // Reset the counter.
-      $check = 0;
-
-      // Break if exceded.
-      if (timer_read('views_send') > .8 * $max_execution_time) {
-        watchdog('views_send', 'PHP maximum execution time almost exceeded. Remaining E-mail messages will be sent during the next cron run. If this warning occurs regularly you should reduce the cron throttle setting.', NULL, WATCHDOG_WARNING);
-        break;
-      }
-    }
-  }
-
-  if ($ok + $fail > 0) {
-    // Log results and exit.
-    watchdog('views_send', '%ok messages sent in %sec seconds, %fail failed sending.', array('%ok' => $ok, '%sec' => timer_read('views_send'), '%fail' => $fail));
-  }
-}
-
-/**
- * Sending the message take from spool.
- *
- * @param $message
- *   Database object containing the spooled message being send.
- *
- * @return
- *   Boolean indicating if the message was sent successfully.
- */
-function views_send_deliver($message) {
-  $headers = unserialize($message->headers);
-  $to = _views_send_format_address($message->to_mail, $message->to_name);
-  $from = _views_send_format_address($message->from_mail, $message->from_name);
-
-  // Mime Mail has no separate rutines for sending and preparing.
-  // We are using pieces of code from mimemail() function to send the message.
-  if (VIEWS_SEND_MIMEMAIL) {
-    $mail = array(
-      'address' => $to,
-      'subject' => mime_header_encode($message->subject),
-      'body' => $message->body,
-      'sender' => $from,
-      'headers' => $headers,
-    );
-
-    $engine = variable_get('mimemail_engine', 'mimemail') .'_mailengine';
-    if (!function_exists($engine)) {
-      return FALSE;
-    }
-
-    // Workaround a Mime Mail inclusion issue...
-    if ($engine == 'mimemail_mailengine') {
-      require_once(drupal_get_path('module', 'mimemail') .'/mimemail.inc');
-    }
-    return $engine('send', $mail);
-  }
-  else {
-    $mail = array(
-      'to' => $to,
-      'subject' => $message->subject,
-      'body' => $message->body,
-      'from' => $from,
-      'headers' => $headers,
-    );
-    return drupal_mail_send($mail);
-  }
-}
-
-/**
- * Clear the expired items from spool.
- */
-function views_send_clear_spool() {
-  // TODO: Drupal 7: replace time() with REQUEST_TIME.
-  $expiration_time = time() - variable_get('views_send_spool_expire', 0) * 86400;
-  db_query("DELETE FROM {views_send_spool} WHERE status = %d AND timestamp <= %d", 1, $expiration_time);
 }
 
 // === Helper functions ========================================================
@@ -841,23 +701,9 @@ function _views_send_prepare_mail($from_name, $from_mail, $to_name, $to_mail, &$
   // Add additional Mime Mail processing.
   if (VIEWS_SEND_MIMEMAIL) {
     $plain = ($format == VIEWS_SEND_FORMAT_PLAIN);
+    $plain_text = $plain ? $mail['body'] : _views_send_html_to_text($mail['body'], TRUE);
 
-    // Fork Mime Mail preparation.
-    $engine_prepare = variable_get('mimemail_engine', 'mimemail') .'_prepare';
-    if (function_exists($engine_prepare)) {
-      $mail = $engine_prepare(
-        $mail['from'],
-        $mail['to'],
-        $mail['subject'],
-        $mail['body'],
-        $plain,
-        $mail['headers'],
-        $plain ? $mail['body'] : _views_send_html_to_text($mail['body'], TRUE),
-        // TODO: Add attachments capability....
-        array(),
-        ''
-      );
-    }
+    $mail = mimemail($mail['from'], $mail['to'], $mail['subject'], $mail['body'], $plain, $mail['headers'], $plain_text, array(), '', FALSE);
 
     // From: header may be broken after mimemail_prepare().
     $mail['headers']['From'] = _views_send_format_address($from_mail, $from_name);
@@ -898,7 +744,7 @@ function _views_send_html_to_text($text) {
  * Helper function for _views_send_html_to_text().
  * Inspired from Simplenews.
  *
- * List of preg* regular expression patterns to search for and replace with
+ * List of preg regular expression patterns to search for and replace with.
  */
 function _views_send_html_replace() {
     return array(

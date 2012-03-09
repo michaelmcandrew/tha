@@ -1,5 +1,4 @@
 <?php
-// $Id: advf-forum-list.tpl.php,v 1.1.2.21 2009/01/27 23:31:11 michellec Exp $
 
 /**
  * @file

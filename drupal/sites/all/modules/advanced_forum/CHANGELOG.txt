@@ -1,6 +1,60 @@
-$Id: CHANGELOG.txt,v 1.3.2.112 2009/06/24 14:49:29 michellec Exp $
+$Id: CHANGELOG.txt,v 1.3.2.133 2011/01/19 18:04:13 michellec Exp $
 
 ****************************** DRUPAL 6 BRANCH ********************************
+
+March 28, 2011 -- 6.x-1.2
+--------------
+#1070792 by Michelle: Fixed notices.
+
+January 19, 2011
+----------------
+#821744 by Michelle: Added all of the images to Boxy and Boxy Stacked since adding the AP images made it no longer default to Naked.
+#821744 by Michelle: More CSS adjustments.
+
+January 17, 2011
+----------------
+#901904 by donquixote: Updated drupal_alter call to pass in new comment parameter added in 6.16.
+#738912 by mr.j: Added variable to hold table sorting in topic list.
+#767742 by miro_dietiker: Removed redundant comment ID from post template.
+#992428 by Michelle: Don't show mark read link on containers.
+#738074 by yaslama: Fixed incorrect forum post counts when using access control modules.
+#787454 by Michelle: Backported fix to new post count when topic is moved to a new forum.
+#821744 by Michelle: Switched to Author Pane 2.x dependency.
+#821744 by Michelle: Fixed goof with template file suggestion that caused it to use old AP template.
+#821744 by Michelle: Fixed a few more style issues.
+
+August 9, 2010
+-------------
+#821744 by Michelle: Initial work on Author Pane 2.x integration. Needs more testing.
+
+July 14, 2010
+-------------
+#714332 by Ddorda: Added Hebrew translation.
+#725720 by ltwinner: Added 'reply button' code to node preprocess.
+#323731 by anrikun: Improved French translation.
+#767638 by miro_dietiker: Added missing t() in post template.
+#728984 by miro_dietiker: Style comment preview.
+#848180 by fuse_64, Michelle: Style new forum node preview.
+
+January 14, 2010
+----------------
+#683688 by apolzon: Fixed typo assignment in place of equality check.
+
+December 13, 2009
+-----------------
+#658788 by ssm2017 Binder: Removed typo.
+
+July 31, 2009
+-------------
+#524592 by Dave Reid: Added email to fake user object sent to Author Pane on comments for anon users.
+
+July 29, 2009
+------------
+#470202 by tom_o_t, merlinofchaos: Fixed small error with mark as read.
+
+July 1, 2009 -- 6.x-1.1
+------------
+Fixes for SA-CONTRIB-2009-040
 
 June 24, 2009
 ------------
@@ -479,7 +533,7 @@ March 22, 2008
 --------------
 Fixed remaining issues with advanced_forum_get_all_last_topics (I hope!)
 Updated README.txt and CHANGELOG.txt
-Fixed $Id: CHANGELOG.txt,v 1.3.2.112 2009/06/24 14:49:29 michellec Exp $ at the tops of all the files.
+Fixed $Id: CHANGELOG.txt,v 1.3.2.133 2011/01/19 18:04:13 michellec Exp $ at the tops of all the files.
 
 March 18, 2008
 --------------

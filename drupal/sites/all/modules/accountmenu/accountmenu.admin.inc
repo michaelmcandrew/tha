@@ -1,5 +1,4 @@
 <?php
-// $Id: accountmenu.admin.inc,v 1.3 2009/08/29 16:00:46 mattyoung Exp $
 /**
  * @file accountmenu.admin.inc
  * admin/settings/accountmenu form constructor

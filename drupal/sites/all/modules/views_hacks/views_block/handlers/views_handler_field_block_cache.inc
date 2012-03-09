@@ -1,5 +1,4 @@
 <?php
-// $Id: views_handler_field_block_cache.inc,v 1.1.2.1 2010/05/22 13:50:26 kratib Exp $
 
 class views_handler_field_block_cache extends views_handler_field {
   function render($values) {

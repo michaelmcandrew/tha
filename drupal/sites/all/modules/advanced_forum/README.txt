@@ -1,4 +1,3 @@
-$Id: README.txt,v 1.11.2.8 2009/03/31 21:27:52 michellec Exp $
 
 CONTENTS OF THIS FILE
 ---------------------

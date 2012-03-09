@@ -1,5 +1,39 @@
 <?php
-/*$Id: imceimage.module,v 1.1.2.4 2009/03/27 17:30:14 yangyicn Exp $*/
+/*$Id: imceimage.module,v 1.1.2.9 2010/02/17 01:36:06 vincenzo Exp $*/
+
+/**
+ * Implementation of hook_menu
+ */
+function imceimage_menu() {
+  $items = array();
+  $items['imceimage/verify'] = array(
+    'title' => 'imceimage_verify',
+    'page callback' => 'imceimage_verify',
+    'access callback' => true,
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Verify that the file is a valid image
+ */
+function imceimage_verify() {
+  $args = func_get_args();
+
+  //convert the url into filepath
+  $url = join('/', $args);
+  $file_path = _imceimage_image_to_filepath($url);
+
+  if (($info = image_get_info($file_path)) == FALSE ) {
+    $info = array();
+    $info['validimage'] = FALSE;
+  } else {
+    $info['validimage'] = TRUE;
+  }
+  
+  drupal_json($info);
+}
 
 /**
  * Declare information about a field type hook_field_info()
@@ -27,19 +61,25 @@ function imceimage_field_info() {
  **/
 function imceimage_field_settings($op, $field) {
   switch ($op) {
-    case 'form': 
-      $form=array();
+    case 'form': {
+      $form = array();
       return $form;
-    case 'save':
+    }
+
+    case 'save': {
       return('imceimage_file_types');
+    }
   
-    case 'database columns':
+    case 'database columns': {
       $columns = array(
-      'imceimage_path' => array('type' => 'char', 'length' => 255, 'not null' => FALSE, 'default' => ""),
-      'imceimage_width' => array('type' => 'int', 'not null' => TRUE, 'default' => "0"),
-      'imceimage_height' => array('type' => 'int', 'not null' => TRUE, 'default' => "0"),
-      'imceimage_alt' => array('type' => 'text'));
-    return $columns;
+        'imceimage_path' => array('type' => 'char', 'length' => 255, 'not null' => FALSE, 'default' => ""),
+        'imceimage_width' => array('type' => 'int', 'not null' => TRUE, 'default' => "0"),
+        'imceimage_height' => array('type' => 'int', 'not null' => TRUE, 'default' => "0"),
+        'imceimage_alt' => array('type' => 'text'),
+        'imceimage_title' => array('type' => 'text'),
+      );
+      return $columns;
+    }
   }
 }
 
@@ -48,22 +88,22 @@ function imceimage_field_settings($op, $field) {
  **/
 function imceimage_field($op, &$node, $field, &$items, $teaser, $page) {
    switch ($op) {
-    case 'validate':
-/*
-      $allowed_values = text_allowed_values($field);
-
+    case 'validate': {
       if (is_array($items)) {
         foreach ($items as $delta => $item) {
           $error_field = $field['field_name'].']['.$delta.'][value';
           if ($item['imceimage_path'] != '') {
-            if (count($allowed_values) && !array_key_exists($item['imceimage_path'], $allowed_values)) {
-              form_set_error($error_field, t('Illegal value for %name.', array('%name' => t($field['widget']['label']))));
+            //check the file for a valid image..
+            $file_path = _imceimage_image_to_filepath($item['imceimage_path']);
+            if(image_get_info($file_path) == FALSE) {
+              form_set_error($error_field,
+                t('%name is not a valid image or has been deleted (url: %url)', array('%name' => t($field['widget']['label']), '%file' => $file_path, '%url' => $item['imceimage_path'])));
             }
           }
         }
       }
-*/
       break;
+    }
   }
 }
 
@@ -71,14 +111,9 @@ function imceimage_field($op, &$node, $field, &$items, $teaser, $page) {
  * implementation of hook_content_is_empty..
  **/
 function imceimage_content_is_empty($item, $field) {
-  return (empty($item['imceimage_path']));
-  
-//  $emptyCheck = ($item['imceimage_path'] === '' &&
-//                 $item['imceimage_width'] === '' &&
-//                 $item['imceimage_height'] === '' &&
-//                 $item['imceimage_alt'] === ''
-//                 );
-//  return $emptyCheck;
+  return ($item['imceimage_path'] == '' && $item['imceimage_width'] == '' &&
+          $item['imceimage_height'] == '' && $item['imceimage_alt'] == '' &&
+          $item['imceimage_title'] == '');
 }
 
 /**
@@ -105,6 +140,11 @@ function imceimage_field_formatter_info() {
     ),
     'link' => array(
       'label' => 'Link',
+      'field types' => array('imceimage'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+    'url' => array(
+      'label' => 'URL',
       'field types' => array('imceimage'),
       'multiple values' => CONTENT_HANDLE_CORE,
     ),
@@ -201,6 +241,7 @@ function imceimage_widget_settings($op, $widget) {
         '#type' => 'textfield',
         '#title' => t('Valid File Types'),
         '#default_value' => $widget['imceimage_file_types'] ? $widget['imceimage_file_types'] : 'png,gif,jpg,jpeg',
+        '#description' => t('This is not implemented currently'),
         '#required' => TRUE,
       );
       return $form;
@@ -225,17 +266,18 @@ function imceimage_widget_settings($op, $widget) {
  * for integrating with imce module.
  */
 function imceimage_widget(&$form, &$form_state, $field, $items, $delta = 0) {
-      static $inc_js = FALSE;
-      if (!$inc_js) {
-        drupal_add_js(drupal_get_path('module','imceimage'). '/imceimage.js');
-        $inc_js = TRUE;
-      }
+  static $inc_js = FALSE;
+  if (!$inc_js) {
+    drupal_add_js(drupal_get_path('module','imceimage'). '/includes/js/imceimage.js');
+    drupal_add_js(array('imceimage' => array('url' => url('imceimage/verify'))),'setting');
+    $inc_js = TRUE;
+  }
 
-      $element = array(
-        '#type' => 'imceimage',
-        '#default_value' => isset($items[$delta])? $items[$delta] : '',
-      );
-      return $element;
+  $element = array(
+    '#type' => 'imceimage',
+    '#default_value' => isset($items[$delta])? $items[$delta] : array(),
+  );
+  return $element;
 }
 
 
@@ -245,15 +287,32 @@ function imceimage_views_api() {
 }
 
 /**
- * theme an image
+ * Theme an image
  */
-function theme_imceimage_image($s, $w='', $h='', $a='', $id='') {
-    $s = 'src="'. $s .'" ';
-    $a = 'alt="'. $a .'" ';
-    $id = !empty($id)? 'id="'. $id .'" ':'';
-    $w = !empty($w)? 'width="'. $w .'" ':'';
-    $h = !empty($h)? 'height="'. $h .'" ':'';
-    return '<img '. $s . $a . $w . $h . $id .'/>';
+function theme_imceimage_image($path, $width = '', $height = '', $alt = '', $title = '', $id = '') {
+  
+  //if is a blank image - deliver a blank image
+  if ($path == '' || empty($path)) {
+    $path = base_path() . drupal_get_path('module', 'imceimage') . '/includes/images/1x1.png';
+  }
+  
+  //make sure that this is a valid image..
+  $file_path = _imceimage_image_to_filepath($path);
+
+  if(($info = image_get_info($file_path)) == false ) {
+    $path = base_path() . drupal_get_path('module', 'imceimage') .'/includes/images/warning.png';
+    $alt = 'Image does not exist anymore or an invalid image';
+    $width = 32;
+    $height = 32;
+  }
+
+  $path = 'src="'. $path .'" ';
+  $alt = 'alt="'. $alt .'" ';
+  $title = 'title="' . $title . '"';
+  $id = !empty($id)? 'id="'. $id .'" ':'';
+  $width = !empty($width)? 'width="'. $width .'" ':'';
+  $height = !empty($height)? 'height="'. $height .'" ':'';
+  return '<img '. $path . $alt . $title . $width . $height . $id .'/>';
 }
 
 
@@ -268,7 +327,8 @@ function _imceimage_get_thumb($image) {
   $thumb['imceimage_path'] = $thumb_path;
   $thumb['imceimage_width'] = $width; 
   $thumb['imceimage_height'] = $height; 
-  $thumb['imceimage_alt'] = $image['imceimage_alt']; 
+  $thumb['imceimage_alt'] = $image['imceimage_alt'];
+  $thumb['imceimage_title'] = $image['imceimage_title'];
   return $thumb;   
 }
 
@@ -279,9 +339,11 @@ function theme_imceimage_formatter_thumb($element) {
   $item = $element['#item'];
   $field = $element['#field_name'];
   $delta = $element['#delta'];
-  $id = "imceimage-". $field ."-". $delta . '-thumb';
+  $id = "imceimage-". $field ."-thumb";
   $thumb = _imceimage_get_thumb($item);
-  return theme_imceimage_image($thumb['imceimage_path'], $thumb['imceimage_width'],$thumb['imceimage_height'],$thumb['imceimage_alt'],$id);
+  return theme_imceimage_image($thumb['imceimage_path'], $thumb['imceimage_width'],
+          $thumb['imceimage_height'], $thumb['imceimage_alt'], $thumb['imceimage_title'],
+          $id);
 
 }
 
@@ -290,13 +352,30 @@ function theme_imceimage_formatter_thumb($element) {
  **/
 function theme_imceimage_formatter_link($element) {
   $item = $element['#item'];
-  if (!isset($item['imceimage_alt'])) {
-    $title = $element['#node']->title;
-  }
-  else{
+
+  $title = '';
+  if (isset($item['imceimage_alt'])) {
     $title = $item['imceimage_alt'];
   }
-  return '<a href="' . $item['imceimage_path'] .'" class="imceimage-link">' . $title . '</a>';
+  else{
+    if (isset($item['imceimage_title'])) {
+      $title = $item['imceimage_title'];
+    }
+    else {
+      $title = $element['#node']->title;
+    }
+  }
+
+  return l($title, $item['imceimage_path'], array('attributes' => array('class' => 'imceimage-link')));
+}
+
+ 
+/**
+ * displays the image as a url
+ */
+function theme_imceimage_formatter_url($element) {
+  $item = $element['#item'];
+  return $item['imceimage_path'];
 }
 
 /**
@@ -306,9 +385,11 @@ function theme_imceimage_formatter_default($element) {
   $item = $element['#item'];
   $field = $element['#field_name'];
   $delta = $element['#delta'];
-  $id = "imceimage-". $field ."-". $delta;
+  $id = "imceimage-". $field;
   if ($item['imceimage_path']) {
-    return theme_imceimage_image($item['imceimage_path'],$item['imceimage_width'],$item['imceimage_height'],$item['imceimage_alt'],$id);
+    return theme_imceimage_image($item['imceimage_path'], $item['imceimage_width'],
+            $item['imceimage_height'], $item['imceimage_alt'], $item['imceimage_title'],
+            $id);
   }
   else {
     return '';
@@ -322,11 +403,13 @@ function theme_imceimage_formatter_with_caption($element) {
   $item = $element['#item'];
   $field = $element['#field_name'];
   $delta = $element['#delta'];
-  $id = "imceimage-". $field ."-". $delta;
+  $id = "imceimage-". $field;
   if ($item['imceimage_path']) {
-    $image = theme_imceimage_image($item['imceimage_path'],$item['imceimage_width'],$item['imceimage_height'],$item['imceimage_alt'],$id);
+    $image = theme_imceimage_image($item['imceimage_path'], $item['imceimage_width'],
+            $item['imceimage_height'], $item['imceimage_alt'], $item['imceimage_title'],
+            $id);
     $caption = $item['imceimage_alt'];
-    return "<div class='image-with-caption'><div class='image'>". $image ."</div><div class='caption' style='font-style:italic'>". $caption ."</div></div>";
+    return "<div class='image-with-caption'><div class='image'>" . $image . "</div><div class='caption'>" . $caption . "</div></div>";
   }
   else {
     return '';
@@ -351,6 +434,7 @@ function imceimage_field_formatter($field, $item, $formatter, $node) {
   $presetname = implode('_', $parts);
   $class = "imagecache imagecache-$presetname imagecache-$style imagecache-$formatter";
   $caption = $item['imceimage_alt'];
+  $title = $item['imceimage_title'];
   $image_url = $item['imceimage_path'];
   if(empty($image_url)){
     return '';
@@ -371,31 +455,34 @@ function imceimage_field_formatter($field, $item, $formatter, $node) {
 
   $full_img_url = file_create_url($orig_filepath);
 
-  if ($preset = imagecache_preset_by_name($presetname)) {
+  if (($preset = imagecache_preset_by_name($presetname))) {
+    $dst = imagecache_create_path($presetname, $orig_filepath);
+    if (!file_exists($dst)) {
+      imagecache_build_derivative($preset['actions'], $filepath, $dst);
+    }
+
     switch ($style) {
-    case 'linked':
-      $imagetag = theme('imagecache', $presetname, $orig_filepath, $caption, $caption);
-      $img = l($imagetag, 'node/'. $node->nid, array('attributes' => array('class' => $class), 'html' => true));
-      return $img;
-    case 'imagelink':
-      $imagetag =  theme('imagecache', $presetname, $orig_filepath, $caption, $caption);
-      $img = l($imagetag, $full_img_url, array('attributes' => array('class' => $class, 'target' => '_blank'), 'html' => true));
-      return $img;    
-    case 'url':
-      return $imagecache_url;
-    case 'path':
-      return imagecache_create_path($presetname, $orig_filepath);
-    default:
-      return theme('imagecache', $presetname, $orig_filepath, $caption, $caption);    
+      case 'linked':
+        $imagetag = theme('imagecache', $presetname, $orig_filepath, $caption, $title);
+        $img = l($imagetag, 'node/'. $node->nid, array('attributes' => array('class' => $class), 'html' => true));
+        return $img;
+      case 'imagelink':
+        $imagetag =  theme('imagecache', $presetname, $orig_filepath, $caption, $title);
+        $img = l($imagetag, $full_img_url, array('attributes' => array('class' => $class, 'target' => '_blank'), 'html' => true));
+        return $img;
+      case 'url':
+        return $imagecache_url;
+      case 'path':
+        return imagecache_create_path($presetname, $orig_filepath);
+      default:
+        return theme('imagecache', $presetname, $orig_filepath, $caption, $title);
     }
   }
+  
   return '<!-- imagecache formatter preset('. $presetname .') not found! -->';
 }
 
 // end Imagecache addition
-
-
-
 
 
 function theme_imceimage($element) {
@@ -419,6 +506,9 @@ function imceimage_theme() {
        'arguments' => array('element' => NULL),
     ),
     'imceimage_formatter_link' => array(
+       'arguments' => array('element' => NULL),
+    ),
+    'imceimage_formatter_url' => array(
        'arguments' => array('element' => NULL),
     ),
     'imceimage_formatter_thumb' => array(
@@ -461,7 +551,7 @@ function imceimage_elements() {
   $el = array();
   $el['imceimage'] = array(
      '#input' => TRUE,
-     '#columns' => array('imceimage_path','imceimage_width','imceimage_height','imceimage_alt'),
+     '#columns' => array('imceimage_path','imceimage_width','imceimage_height','imceimage_alt', 'imceimage_title'),
      '#delta' => 0,
      '#process' => array('imceimage_process'),
      '#theme' => 'imceimage_override', //not used
@@ -477,17 +567,37 @@ function imceimage_process($element, $edit, $form_state, $form) {
   $field = $form['#field_info'][$element['#field_name']];
   $delta = $element['#delta'];
 
-  $link = url('imce');
+  $link = url('imce/browse');
   $field_id = $field['field_name'];
 
-  if (trim($element['#value']['imceimage_path']) != '') {
-    $links = t('Change Image') . '</a>]'
-           .'[<a class="imceimage-remove" href="javascript:'
+  // Workaround to have all the "visible" fields in a fieldset
+  // and making possible to save them at the same time
+  if (isset($element['#value']['imce_widget_container']))  {
+    $element['#value'] = $element['#value']['imce_widget_container'];
+  }
+
+  
+  $links = t('Select Image') . '</a>]' . '[<a class="imceimage-remove" href="javascript:'
            . "imceImage.remove('$delta-$field_id')"
            . '">' . t('Remove') . '</a>]';
-  } 
-  else {
-    $links = t('Add Image') . '</a>]';
+
+  $imceparams['url'] = "imceimagepath-$delta-$field_id";
+  $imceparams['width'] = "imceimagewidth-$delta-$field_id";
+  $imceparams['height'] = "imceimageheight-$delta-$field_id";
+  
+  $link = url('imce');
+
+  
+  $element['imce_widget_container'] = array(
+    '#type' => 'fieldset',
+    '#attributes' => array('style' => 'display:none', 'id' => "imceimagefieldset-$delta-$field_id"),
+  );
+
+  if (!stripos(theme_imceimage_image($element['#value']['imceimage_path'], $element['#value']['imceimage_width'],
+                            $element['#value']['imceimage_height'], $element['#value']['imceimage_alt'],
+                            $element['#value']['imceimage_title'], "imceimageimg-$delta-$field_id"), '1x1')) {
+
+      unset($element['imce_widget_container']['#attributes']['style']);
   }
 
   $element['imce_add'] = array(
@@ -495,49 +605,69 @@ function imceimage_process($element, $edit, $form_state, $form) {
     '#value' => $field['widget']['label'] 
                .' [<a href="'
                ."javascript:imceImage.open('$link', '$delta-$field_id')"
-               .'" class="imceimage-add">'. $links );
-
-
-  $element['imceimage_path'] = array(
-    '#type' => 'hidden',
-    '#id' => "imceimagepath-$delta-$field_id",
-    '#default_value' => $element['#value']['imceimage_path'],
+               .'" class="imceimage-add">'. $links ,
+    '#weight' => -1,
   );
 
-  $element['imceimage_width'] = array(
+  $element['imce_widget_container']['imceimage_path'] = array(
     '#type' => 'hidden',
-    '#id' => "imceimagewidth-$delta-$field_id",
+    '#id' => $imceparams['url'],
+    '#default_value' => $element['#value']['imceimage_path'],
+  );
+  
+  $element['imce_widget_container']['imceimage_width'] = array(
+    '#type' => 'hidden',
+    '#id' => $imceparams['width'],
     '#default_value' => $element['#value']['imceimage_width'],
   );
 
-  $element['imceimage_height'] = array(
+  $element['imce_widget_container']['imceimage_height'] = array(
     '#type' => 'hidden',
-    '#id' => "imceimageheight-$delta-$field_id",
+    '#id' => $imceparams['height'],
     '#default_value' => $element['#value']['imceimage_height'],
   );
 
-  $element['imceimage_alt'] = array(
-    '#type' => 'textarea',
+  $element['imce_widget_container']['imce_view'] = array(
+    '#type' => 'item',
+    '#id' => "imceimageimg-$delta-$field_id",
+    '#value' => theme_imceimage_image($element['#value']['imceimage_path'],
+                            100,
+                            100, 
+                            $element['#value']['imceimage_alt'],
+                            $element['#value']['imceimage_title'],
+                            "imceimageimg-$delta-$field_id")
+  );
+  
+  $element['imce_widget_container']['imceimage_alt'] = array(
+    '#type' => 'textfield',
     '#id' => "imceimagealt-$delta-$field_id",
     '#default_value' => isset($element['#value']['imceimage_alt']) ? check_plain($element['#value']['imceimage_alt']) : NULL,
     '#autocomplete_path' => $element['#autocomplete_path'],
     '#rows' => 1,
     '#attributes' => array('class' => 'text'),
-    // The following values were set by the content module and need
-    // to be passed down to the nested element.
-    '#title' => t('caption'), //$element['#title']['imceimage_alt'],
-    '#description' => t('The caption text for this image.'), //$element['#description']['imceimage_alt'],
+    '#title' => t('Alternate Text'),
+    '#description' => t('The alternate text (or ALT, or caption) for this image.'),
   );
 
-  $element['imce_view'] = array(
-    '#type' => 'item',
-    '#value' => theme_imceimage_image($element['#value']['imceimage_path'],
-                            $element['#value']['imceimage_width'],
-                            $element['#value']['imceimage_height'],
-                            $element['#value']['imceimage_alt'], 
-                            "imceimagearea-$delta-$field_id")
+  $element['imce_widget_container']['imceimage_title'] = array(
+    '#type' => 'textfield',
+    '#id' => "imceimagetitle-$delta-$field_id",
+    '#default_value' => isset($element['#value']['imceimage_title']) ? check_plain($element['#value']['imceimage_title']) : NULL,
+    '#autocomplete_path' => $element['#autocomplete_path'],
+    '#rows' => 1,
+    '#attributes' => array('class' => 'text'),
+    '#title' => t('Title'),
+    '#description' => t('The title text for this image.'),
   );
-
 
   return $element;
+}
+
+/**
+ * helper function to find out file location from an URL.
+ */
+function _imceimage_image_to_filepath($url) {
+  $doc_root = $_SERVER['DOCUMENT_ROOT'];
+  $file_path = $doc_root .'/'. $url;
+  return $file_path;
 }

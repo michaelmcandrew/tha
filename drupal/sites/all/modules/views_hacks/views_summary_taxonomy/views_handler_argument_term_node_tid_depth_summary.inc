@@ -1,5 +1,4 @@
 <?php
-// $Id: views_handler_argument_term_node_tid_depth_summary.inc,v 1.1.2.1 2010/05/22 13:50:26 kratib Exp $
 /**
  * Argument handler for taxonomy terms with depth and supporting summary view.
  */

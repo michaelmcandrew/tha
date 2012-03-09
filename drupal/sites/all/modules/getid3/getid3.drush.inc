@@ -1,5 +1,4 @@
 <?php
-// $Id: getid3.drush.inc,v 1.1.2.2 2010/07/25 03:40:32 drewish Exp $
 
 /**
  * @file

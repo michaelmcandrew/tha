@@ -1,6 +1,11 @@
 
 ------------------------ D6 2.x BRANCH --------------------------------------------------
 
+December 20, 2011
+-----------------
+Issue #1376608 by dberror, Scyther: Check whether the user has access to view userpoints or not.
+by Scyther: Fixed some minor coder warnings about coding standards.
+
 September 6, 2011
 -----------------
 #1234572 by Michelle: Removed Location module integration as it is broken and will not be fixed because it is unsupported.

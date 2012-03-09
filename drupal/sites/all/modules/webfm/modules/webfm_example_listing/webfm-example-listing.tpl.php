@@ -1,5 +1,4 @@
 <?php
-// $Id: webfm-example-listing.tpl.php,v 1.1 2009/08/19 15:24:35 robmilne Exp $
 
 /**
  * @file webfm-example-listing.tpl.php

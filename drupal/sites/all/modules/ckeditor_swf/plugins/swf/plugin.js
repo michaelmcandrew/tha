@@ -142,7 +142,7 @@
     var match;
     match = /^http:\/\/([\w\.\/]*?)\?([^#]+)/.exec(src);
     if (match && (match[1] == 'www.youtube.com/watch')) {
-      match = /\bv=(\w+)/i.exec(match[2]);
+      match = /\bv=([-\w]+)/i.exec(match[2]);
       if (match) {
         return 'http://www.youtube.com/v/' + match[1];
       }
@@ -390,7 +390,7 @@
 
     init: function(editor, pluginPath) {
       CKEDITOR.on('dialogDefinition', function(e) {
-        if ((e.editor != editor) || (e.data.name != 'flash')) return;
+        if ((e.editor != editor) || (e.data.name != 'flash') || !Drupal.settings.ckeditor_swf) return;
 
         // Overrides definition.
         var definition = e.data.definition;

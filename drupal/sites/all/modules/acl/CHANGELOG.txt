@@ -1,19 +1,37 @@
+
 CHANGELOG for ACL for Drupal 6
+
 
 acl 6.x-1.x-dev:
 
 
+acl 6.x-1.4 (2011-07-26):
+  Enhancements:
+    - Provide compatibility warning about Authcache contrib module.
+
+
+acl 6.x-1.3 (2011-01-06):
+  Bugs fixed:
+    - Remove the premature acl_views_api() hook implementation (we're not ready for Views yet).
+    - #836822: Don't anonymize 'deny' grant records.
+    - #793380: Remove t() calls from hook_schema according to #332123.
+  Enhancements:
+    - #968382: Install better indexes.
+    - Remove translation files in favor of localize.drupal.org.
+    - #936682: Add a 'number' column and some indexes to the {acl} table.
+    - Create new hook_acl_explain() to allow the client to explain its grant records.
+    - #759882: Add acl_remove_all_users($acl_id) API function.
+    - Add acl_has_user($acl_id, $uid) API function.
+
 acl 6.x-1.2 (2010-01-25):
   Bugs fixed:
     - #694236: Suppress a harmless but irritating warning from acl_update_6001().
-
 
 acl 6.x-1.1 (2010-01-24):
   Bugs fixed:
     - #680324: Add missing index if upgraded from D5.
   Enhancements:
     - Clean up some minor coder issues (no functional changes).
-
 
 acl 6.x-1.0 (2009-06-03):
   Enhancements:

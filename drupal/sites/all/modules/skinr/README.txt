@@ -1,4 +1,3 @@
-// $Id: README.txt,v 1.8 2009/10/20 03:54:42 jgirlygirl Exp $
 
 Please refer to the following for documentation:
 

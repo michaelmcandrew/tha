@@ -654,7 +654,7 @@ div.fusion-center {
 
 /* Float imagefield images right and add margin */
 .fusion-float-imagefield-right .field-type-filefield,
-.fusion-float-imagefield-right .image-insert.
+.fusion-float-imagefield-right .image-insert,
 .fusion-float-imagefield-right .imagecache {
   float: right; /* LTR */
   margin: 0 0 15px 15px; /* LTR */

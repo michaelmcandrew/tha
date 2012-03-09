@@ -1,4 +1,3 @@
-// $Id: webfm_mp3.js,v 1.1 2009/02/08 06:25:40 robmilne Exp $
 /**
  * @file webfm_mp3.js
  *

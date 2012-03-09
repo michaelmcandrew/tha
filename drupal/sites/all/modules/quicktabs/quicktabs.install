@@ -1,5 +1,4 @@
 <?php
-// $Id: quicktabs.install,v 1.4.2.11 2010/01/10 01:06:40 katbailey Exp $
 
 /**
  * Implementation of hook_schema().

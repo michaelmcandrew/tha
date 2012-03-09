@@ -1,5 +1,4 @@
 <?php
-// $Id: comment.skinr.inc,v 1.3.2.1 2009/12/29 08:26:27 moonray Exp $
 /**
  * @file
  * Provide skinr handling for comment.module

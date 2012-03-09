@@ -1,5 +1,4 @@
 <?php
-// $Id: admin.inc,v 1.1.2.53 2010/01/10 01:06:40 katbailey Exp $
 
 /**
  * Page callback for quicktabs admin landing page.
@@ -13,7 +12,7 @@ function quicktabs_list() {
   $rows = array();
   while ($row = db_fetch_object($result)) {
     $tablerow = array(
-      array('data' => $row->title),
+      array('data' => check_plain($row->title)),
       array('data' => l(t('Edit'), 'admin/build/quicktabs/'. $row->qtid .'/edit')),
       array('data' => l(t('Clone'), 'admin/build/quicktabs/'. $row->qtid .'/clone')),
       array('data' => l(t('Delete'), 'admin/build/quicktabs/'. $row->qtid .'/delete')),
@@ -103,17 +102,10 @@ function _qt_admin_main_form($form_state, &$quicktabs) {
     '#weight' => -10,
   );
 
-  $style_options = array();
-  $styles = module_invoke_all('quicktabs_tabstyles');
-  // The keys used for options must be valid html id-s.
-  foreach ($styles as $style) {
-    $style_options[$style] = $style;
-  }
-  ksort($style_options);
   $form['style'] = array(
     '#type' => 'select',
     '#title' => t('Style'),
-    '#options' => array('nostyle' => t('No style')) + array('default' => t('Default style')) + $style_options,
+    '#options' => quicktabs_style_options(),
     '#default_value' => isset($quicktabs['style']) ? $quicktabs['style'] : 'default',
     '#description' => t('Choose the quicktab style.'),
     '#weight' => -8,
@@ -127,7 +119,7 @@ function _qt_admin_main_form($form_state, &$quicktabs) {
       FALSE => t('No') .': '. t('Load all tabs on page view.'),
     ),
     '#default_value' => isset($quicktabs['ajax']) ? $quicktabs['ajax'] : 0,
-    '#description' => t('Choose how the content of tabs should be loaded.<p>By choosing "Yes", only the first tab will be loaded when the page first viewed. Content for other tabs will be loaded only when the user clicks the other tab. This will provide faster initial page loading, but subsequent tab clicks will be slower. This can place less load on a server.</p><p>By choosing "No", all tabs will be loaded when the page is first viewed. This will provide slower initial page loading, and more server load, but subsequent tab clicks will be faster for the user. Use with care if you have heavy views.</p>'),
+    '#description' => t('Choose how the content of tabs should be loaded.<p>By choosing "Yes", only the first tab will be loaded when the page first viewed. Content for other tabs will be loaded only when the user clicks the other tab. This will provide faster initial page loading, but subsequent tab clicks will be slower. This can place less load on a server.</p><p>By choosing "No", all tabs will be loaded when the page is first viewed. This will provide slower initial page loading, and more server load, but subsequent tab clicks will be faster for the user. Use with care if you have heavy views.</p><p>Warning: if you enable Ajax, any block you add to this quicktabs block will be accessible to anonymous users, even if you place role restrictions on the quicktabs block. Do not enable Ajax if the quicktabs block includes any blocks with potentially sensitive information.</p>'),
     '#weight' => -6,
   );
 
@@ -476,6 +468,11 @@ function quicktabs_form_submit($form, &$form_state) {
       $ret = drupal_write_record('quicktabs', $quicktabs);
       if ($ret == SAVED_NEW) {
         drupal_set_message(t('The quicktab block has been created.'));
+      }
+    }
+    if (module_exists('i18nstrings')) {
+      foreach ($quicktabs['tabs'] as $tabkey => $tab) {
+        i18nstrings_update('quicktabs:tab:' . $quicktabs['qtid'] . '--' . $tabkey . ':title', $tab['title']);
       }
     }
     drupal_goto('admin/build/quicktabs');
