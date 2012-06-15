@@ -1,0 +1,108 @@
+/*civicrm styling */
+#crm-container .form-item {
+text-align: left;
+}
+
+#crm-container div.label {
+text-align: left;
+float: none;
+width: 95%;
+}
+
+#crm-container .crm-section .label, .crm-section .label {
+float: none;
+text-align: left;
+width: 95%;
+margin-left: 5px;
+}
+
+#crm-container div.label h6{
+font-size: 95%;
+margin: 0;
+}
+
+#crm-container div.label h6{
+font-size: 95%;
+position: relative;
+float: left;
+font-weight: normal;
+}
+
+#crm-container .crm-section .content, .crm-section .content {
+float: none;
+margin-left: 0;
+position: relative;
+float: left;
+clear: both;
+}
+
+#crm-container  div.content {
+padding-bottom: 10px;
+}
+
+#crm-container .crm-marker {
+color: #194C66;
+}
+
+#crm-container  .form-item input, .form-item select, #content-region input.form-text {
+border: 1px solid grey;
+font-size: 14px;
+width: 200px;
+}
+
+#crm-container select.form-select {
+width: 210px;
+height: 22px;
+}
+
+#crm-container  input.form-radio {
+width: 20px;
+}
+
+#crm-container  input.form-checkbox {
+width: 20px;
+}
+
+#crm-container  input.form-file {
+border: none;
+}
+
+#crm-container table.advmultiselect select.form-select {
+height: 100%;
+}
+
+#crm-container table.advmultiselect input {
+width: 100%;
+margin: 10px 0;
+display: block;
+color: #EEEEEE;
+background-color: #3399CC;
+background-image: none;
+cursor: pointer;
+border: none;
+border-radius: 0;
+padding: 6px;
+font-size: 14px;
+font-weight: normal;
+text-decoration: none;
+text-shadow: none;
+}
+
+#crm-container table.advmultiselect td{
+vertical-align: middle;
+}
+
+#crm-container .crm-button input.form-submit, #crm-container .crm-button input.form-submit-inline #crm-container a.button, #crm-create-new-link, #crm-participant-link, #crm-event-links-link, #crm-contact-actions-link, #crm-container a.button:link, #crm-container input.form-submit, #crm-container input[type="button"], #crm-container input.form-submit-inline, #crm-container .crm-button{
+display: block;
+color: #EEEEEE;
+background-color: #3399CC;
+background-image: none;
+cursor: pointer;
+border: none;
+border-radius: 0;
+padding: 2px;
+font-size: 14px;
+font-weight: normal;
+text-decoration: none;
+text-shadow: none;
+}

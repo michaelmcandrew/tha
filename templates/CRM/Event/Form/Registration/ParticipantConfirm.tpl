@@ -23,35 +23,12 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
-{* this template is used for displaying event information *}
-
-{if $registerClosed }
-<div class="spacer"></div>
-<div class="messages status">
-  <div class="icon inform-icon"></div>
-     &nbsp;{ts}Registration is closed for this event{/ts}
+<div class="crm-block crm-event-participant_confirm-form-block">
+  <div class="messages status">
+        {$statusMsg}
   </div>
-{/if}
-<div class="vevent crm-block crm-event-info-form-block">
-	<div class="event-info">
-	
-	{if $event.summary}
-	    <div class="crm-section event_summary-section">{$event.summary}</div>
-	{/if}
-	{if $event.description}
-	    <div class="crm-section event_description-section summary">{$event.description}</div>
-	{/if}
-	
-    {include file="CRM/Custom/Page/CustomDataView.tpl"}
-        
-	{if $allowRegistration}
-        <div class="action-link section register_link-section">
-            <a href="{$registerURL}" title="{$registerText}" class="button crm-register-button"><span>{$registerText}</span></a>
-        </div>
-    {/if}
-    { if $event.is_public }
-        <br />{include file="CRM/Event/Page/iCalLinks.tpl"}
-    {/if}
-    
-    </div>
+
+  <div id="crm-submit-buttons">
+	{include file="CRM/common/formButtons.tpl" location="bottom"}
+  </div>
 </div>

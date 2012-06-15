@@ -1,0 +1,21 @@
+Issue log
+
+Problem: Multiple directory entries appearing based on numbers of membership. 
+Solution: Remove 'membership type' field from directory search.
+Status: changed on both live and new sites.
+
+Problem: Cannot produce batch updates on node search
+Solution: Changed 'content_search' view to Bulk operations and checked relevant operations.
+Status: Done on new, will need to import to live or redo
+
+Problem: Bold text for organisation name on Full Listing 
+Solution: changed Custom Text html
+Status: Done on both.
+
+Problem: Max number of participants is 10 - change to 3
+Solution: code added to civicrm_helplines_events.module
+Status: Done on new, will need to inport to live or redo
+
+Problem: Passing Organisation name to additional participant
+Solution: Scripted pass to new civicrm custom field - pull this out through views. Hidden field using css (custom_379-section).
+Status: Done on new, will need to redo on live.

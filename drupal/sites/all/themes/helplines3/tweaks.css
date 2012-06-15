@@ -1,0 +1,12 @@
+/* CSS Document */
+#block-menu-accountmenu h2.title {
+  visibility: hidden;
+  border: none;
+  height: 0;
+}
+#block-search-0 {
+  margin-top: -1em;
+  font-size: 0.9em;
+}
+
+
