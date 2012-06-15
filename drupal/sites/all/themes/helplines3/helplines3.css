@@ -915,6 +915,7 @@ text-decoration: none;
 
 #main-content div.block {
 padding: 0 0 20px 0;
+overflow: visible
 }
 
 h2.block-title {
@@ -1692,7 +1693,7 @@ margin-left: 0;
 }
 
 div.view-events-list div.view-content{
-height: 296px;
+height: 252px;
 }
 
 #pid-civicrm-event-register #crm-container .form-item input, .form-item select, #content-region input#email-5 {
@@ -1859,4 +1860,17 @@ display: none;
 
  body#pid-civicrm-event-registerdiv#crm-container form#ThankYou div.content {
 padding: 4px;
+}
+
+div.resizable-textarea textarea#edit-submitted-your-message {
+width: 500px;
+}
+
+#pid-about-contact-us div.resizable-textarea  div.grippie {
+margin-left: 4px;
+margin-right: -6px;
+}
+
+div.webform-component {
+font-size: 14px;
 }
