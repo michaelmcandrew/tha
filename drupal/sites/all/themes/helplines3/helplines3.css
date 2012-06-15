@@ -418,7 +418,7 @@ float: right;
 margin-top: 5px;	
 }
 
-#block-block-39 .inner {
+#block-block-40 .inner {
 margin: 0;
 padding: 0;
 height: 90px;
@@ -985,33 +985,33 @@ padding: 7px;
 }
 
 /* Front picture block styling */
-#block-block-58 {
+#block-block-42 {
 background: url(images/ukmap.jpg) no-repeat;
 height: 230px;
 margin: 6px 0 50px 0;
 border-radius: 3px;
 }
 
-#block-block-58 {
+#block-block-42 {
 height: 230px;
 }
 
-#block-block-55 {
+#block-block-43 {
 margin-top: 5px;
 }
 
-#block-block-55 h2 {
+#block-block-43 h2 {
 font-size: 2em;
 }
 
-#block-block-55 p{
+#block-block-43 p{
 margin: 0.5em 0 0.7em 0;
 color: #000;
 font-size: 1.25em;
 width: 260px;
 }
 
-#block-block-55 a{
+#block-block-43 a{
 background-color: #3399cc;
 border-radius: 4px;
 padding: 4px 8px;
@@ -1019,7 +1019,7 @@ color: #fff;
 margin-bottom: 1em;
 }
 
-#block-block-54 {
+#block-block-41 {
 color: E0E0E0;
 margin-top: 11px;
 padding: 0;
@@ -1029,7 +1029,7 @@ height: 221px;
 border-radius: 5px;
 }
 
-#block-block-54 p{
+#block-block-41 p{
 font-size: 1.25em;
 padding: 0 0 0 10px;
 margin-bottom: 3px;
@@ -1097,7 +1097,7 @@ display: none;
 .caltitle {
 }
 
-#block-block-56 div.views-row{
+#block-block-44 div.views-row{
 height: 40px;
 padding: 4px;
 }
